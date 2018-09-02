@@ -6,7 +6,7 @@
   "unpkg": "dist/aframe-lowroller-component.min.js",
   "scripts": {
     "build": "coffee -c lowroller.coffee ;webpack lowroller.js dist/aframe-lowroller-component.js",
-    "dev": "budo lowroller.js:dist/aframe-lowroller-component.min.js --port 7000 --live --open",
+    "dev": "budo lowroller.js:dist/aframe-lowroller-component.min.js --port 3000 --live --open",
     "dist": "npm run build && uglifyjs dist/aframe-lowroller-component.js > dist/aframe-lowroller-component.min.js",
     "lint": "semistandard -v | snazzy",
     "prepublish": "npm run dist",

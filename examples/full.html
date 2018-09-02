@@ -1,48 +1,5 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>A-Frame Lowroller Component - Basic</title>
-    <meta name="description" content="Basic example for Lowroller component."></meta>
-    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
-    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.2.0/dist/aframe-physics-system.min.js"></script>
-    <script src="../../dist/aframe-lowroller-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-environment-component@1.0.0/dist/aframe-environment-component.min.js"></script>
-    <script>  loopMe = function(color, points) {
-      var el;
-      el = document.querySelector("#marker-" + color);
-      el.object3D.position.applyAxisAngle({
-        x: 0,
-        y: 1,
-        z: 0
-      }, 2 * Math.PI / points);
-      commandByTeam(color, {
-        chase: "#marker-" + color
-      });
-    };
-    setInterval((function() {
-      return loopMe('red', -7);
-    }), 3000);
-    setInterval((function() {
-      return loopMe('blue', 5);
-    }), 7500);
-    setInterval((function() {
-      return loopMe('green', 5);
-    }), 4500);
-    commandByTeam = function(teamClass, activity) {
-      var element, j, len, ref;
-      ref = document.querySelectorAll('.' + teamClass);
-      for (j = 0, len = ref.length; j < len; j++) {
-        element = ref[j];
-        element.emit('setAction', activity);
-      }
-    };</script>
-  </head>
-  <body>
-    <div>
-      <div class="container right">
-        
-  <a-scene  style="height:300px;width:400px" embedded="embedded" physics="debug: false; driver: local; gravity: -9.6; friction: 0.10; restitution: 0.300;">
+ 
+  <a-scene embedded="embedded" physics="debug: false; driver: local; gravity: -9.6; friction: 0.10; restitution: 0.300;">
     <a-entity physics="mass:0;" position="0 8 15" rotation="0 0 0">
     <a-camera physics="mass:0;" universal-controls="universal-controls" body-static="body-static" mouse-cursor="mouse-cursor" look-controls="enabled:true" wasd-controls="enabled:true">
     <a-cursor> </a-cursor>
@@ -203,19 +160,3 @@
     <a-sphere id="marker-green" position="4 0 4" radius="0.5" color="green">
     </a-sphere>
     </a-scene>
-      </div>
-<div id="bloviation" class="contents"><form><div class="form-group"><div class="form-row"><div class="col-md-4 mb-3"><div>green: <span id="show-green">P: 12 - I: 20 - D: 0.25</span></div><label for="greenpControl">proportional</label><input id="greenpControl" class="form-control-range" value="20" onchange="Pylon.trigger('updatePid',{who: 'green',p: this.value});" type="range"><label for="greeniControl">integral</label><input id="greeniControl" class="form-control-range" value="20" onchange="Pylon.trigger('updatePid',{who: 'green',i: this.value});" type="range"><label for="greendControl">delta</label><input id="greendControl" class="form-control-range" min="-1" max="1.5" step="0.05" value="0.25" onchange="Pylon.trigger('updatePid',{who: 'green',d: this.value});" type="range"></div><div class="col-md-4 mb-3"><div>red: <span id="show-red">P: 38 - I: 39 - D: 0.35</span></div><label for="redpControl">proportional</label><input id="redpControl" class="form-control-range" onchange="Pylon.trigger('updatePid',{who: 'red', p: this.value});" type="range"><label for="rediControl">integral</label><input id="rediControl" class="form-control-range" onchange="Pylon.trigger('updatePid',{who: 'red', i: this.value});" type="range"><label for="reddControl">delta</label><input id="reddControl" class="form-control-range" min="-1" max="1.5" step="0.05" onchange="Pylon.trigger('updatePid',{who: 'red', d: this.value});" type="range"></div></div></div></form><p>Did you ever see a Samurai movie where the police take down a rampaging samuri?</p><p>They simply surrounded the samuri with wooden staffs to keep him farther than swords length, and poked him until he gave up.  we have nothing like that for a man with a gun.  Enter the LowRoller</p><p>The LowRoller rollerBall is about the size of a basketball or soccerball.  It is
-covered with a hard shell with a surface like leather.  It's mass is a few kilograms.
-It can alter it's center of gravity to roll around.  that's it.</p><p>Even with that limitation, it can gang up at the feet of a person causing a threat.
-The random motions of the balls will make the attacker lose balance and be unable to continue.</p></div>
-    </div>
-    <!-- GitHub Corner. -->
-    <a href="https://github.com/jahbini/aframe-lowroller-component" class="github-corner">
-      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#222; color:#fff; position: absolute; top: 0; border: 0; right: 0;">
-        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
-      </svg>
-    </a>
-    <style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
-    <!-- End GitHub Corner. -->
-  </body>
-</html>
