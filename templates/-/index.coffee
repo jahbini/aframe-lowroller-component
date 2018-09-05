@@ -43,13 +43,14 @@ renderer = class index extends celarientemplate
 db = {} unless db
 
 #
+
 db[id="lowroller/-/index"] =
   title: "index"
   slug: "index"
   category: "-"
   site: "lowroller"
-  accepted: false
-  index: false
+  accepted: true
+  index: true
   sourcePath: ""
   headlines: []
   tags: []
@@ -66,4 +67,3 @@ db[id="lowroller/-/index"] =
   id: "lowroller/-/index"
   name: "index"
 #
-#end of story

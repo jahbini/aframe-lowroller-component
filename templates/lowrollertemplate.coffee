@@ -1,7 +1,7 @@
 # 
 T = require 'halvalla'
 #include card.coffee
-module.exports = class celarientemplate
+module.exports = class lowrollertemplate
   #pass the db entry into the class so that the classes have access to it
   constructor: (@db,@allDB)->
   #
@@ -16,7 +16,7 @@ module.exports = class celarientemplate
     T.doctype 'html'
     T.html =>
       T.head =>
-        T.base href: "/"
+        #T.base href: "/"
         T.meta name: "author", content: "James A. Hinds: The Celarien's best friend.  I'm not him, I wear glasses"
         T.meta "http-equiv": "Content-Type", content: "text/html", charset: "UTF-8"
         T.meta name: "viewport", content: "width=device-width, initial-scale=1"
@@ -127,15 +127,15 @@ FB.api('/me', 'get', {'fields':'first_name,gender'}, function(response) {
         T.script src: "mystories.json"
         T.script src: "assets/js/vendor.js", "-content--type": "text/javascript", "-content--encoding": "gzip"
         T.script src: "assets/js/app.js", "-content--type": "text/javascript", "-content--encoding": "gzip"
-        T.script "siteHandle = 'celarien'; topDomain = 'celarien.com'; require('initialize');"
+        T.script "siteHandle = 'lowroller'; topDomain = 'jahbini.github.io'; require('initialize');"
         @storyHeadMatter()
       T.body =>
         @celarien_body()
   # 
-  # section celarien_body
+  # section lowroller_body
   # 
-  celarien_body: =>
-    T.div "#celarien-body.c-text.o-grid.o-grid--full", =>
+  lowroller_body: =>
+    T.div "#lowroller-body.c-text.o-grid.o-grid--full", =>
       T.div ".style.c-hero", style: "{ border-bottom: 1px solid #333; }"
       T.div ".c-hero.o-grid__cell.u-higher", =>
         @header()

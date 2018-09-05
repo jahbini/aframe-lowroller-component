@@ -1,10 +1,10 @@
 # #-------- class start
-renderer = class index extends celarientemplate
+renderer = class index extends lowrollertemplate
   # 
   # section html
   # 
   # 
-  # section celarien_body
+  # section lowroller_body
   # 
   # 
   # section cover
