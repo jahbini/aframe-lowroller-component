@@ -1,7 +1,7 @@
 # 
 T = require 'halvalla'
 #include card.coffee
-module.exports = class lowrollertemplate
+module.exports = class lowrollerTemplate
   #pass the db entry into the class so that the classes have access to it
   constructor: (@db,@allDB)->
   #
@@ -16,11 +16,11 @@ module.exports = class lowrollertemplate
     T.doctype 'html'
     T.html =>
       T.head =>
-        #T.base href: "/"
+        T.base href: "/aframe-lowroller-component/"
         T.meta name: "author", content: "James A. Hinds: The Celarien's best friend.  I'm not him, I wear glasses"
         T.meta "http-equiv": "Content-Type", content: "text/html", charset: "UTF-8"
         T.meta name: "viewport", content: "width=device-width, initial-scale=1"
-        T.title => T.raw "Practical Metaphysics and Harmonious Mana."
+        T.title => T.raw "The LowRoller -- an example of an active defense against tragic shootings."
         T.meta name: "description", content: "some good thoughts. Maybe."
         T.meta name: "keywords", content: "romance, wisdom, tarot"
         T.meta property: "fb:admins", content: "1981510532097452"
@@ -101,22 +101,22 @@ FB.api('/me', 'get', {'fields':'first_name,gender'}, function(response) {
 }
 """
         T.script "document.styling = {\"palx\":\"#03c\",\"black\":\"#000\",\"white\":\"#fff\"}"
-        T.link rel: "apple-touch-icon", sizes: "57x57", href: "/assets/icons/apple-icon-57x57.png"
-        T.link rel: "apple-touch-icon", sizes: "60x60", href: "/assets/icons/apple-icon-60x60.png"
-        T.link rel: "apple-touch-icon", sizes: "72x72", href: "/assets/icons/apple-icon-72x72.png"
-        T.link rel: "apple-touch-icon", sizes: "76x76", href: "/assets/icons/apple-icon-76x76.png"
-        T.link rel: "apple-touch-icon", sizes: "114x114", href: "/assets/icons/apple-icon-114x114.png"
-        T.link rel: "apple-touch-icon", sizes: "120x120", href: "/assets/icons/apple-icon-120x120.png"
-        T.link rel: "apple-touch-icon", sizes: "144x144", href: "/assets/icons/apple-icon-144x144.png"
-        T.link rel: "apple-touch-icon", sizes: "152x152", href: "/assets/icons/apple-icon-152x152.png"
-        T.link rel: "apple-touch-icon", sizes: "180x180", href: "/assets/icons/apple-icon-180x180.png"
-        T.link rel: "icon", type: "image/png", sizes: "192x192", href: "/assets/icons/android-icon-192x192.png"
-        T.link rel: "icon", type: "image/png", sizes: "32x32", href: "/assets/icons/favicon-32x32.png"
-        T.link rel: "icon", type: "image/png", sizes: "96x96", href: "/assets/icons/favicon-96x96.png"
-        T.link rel: "icon", type: "image/png", sizes: "16x16", href: "/assets/icons/favicon-16x16.png"
-        T.link rel: "manifest", href: "/assets/manifest.json"
+        T.link rel: "apple-touch-icon", sizes: "57x57", href: "assets/icons/apple-icon-57x57.png"
+        T.link rel: "apple-touch-icon", sizes: "60x60", href: "assets/icons/apple-icon-60x60.png"
+        T.link rel: "apple-touch-icon", sizes: "72x72", href: "assets/icons/apple-icon-72x72.png"
+        T.link rel: "apple-touch-icon", sizes: "76x76", href: "assets/icons/apple-icon-76x76.png"
+        T.link rel: "apple-touch-icon", sizes: "114x114", href: "assets/icons/apple-icon-114x114.png"
+        T.link rel: "apple-touch-icon", sizes: "120x120", href: "assets/icons/apple-icon-120x120.png"
+        T.link rel: "apple-touch-icon", sizes: "144x144", href: "assets/icons/apple-icon-144x144.png"
+        T.link rel: "apple-touch-icon", sizes: "152x152", href: "assets/icons/apple-icon-152x152.png"
+        T.link rel: "apple-touch-icon", sizes: "180x180", href: "assets/icons/apple-icon-180x180.png"
+        T.link rel: "icon", type: "image/png", sizes: "192x192", href: "assets/icons/android-icon-192x192.png"
+        T.link rel: "icon", type: "image/png", sizes: "32x32", href: "assets/icons/favicon-32x32.png"
+        T.link rel: "icon", type: "image/png", sizes: "96x96", href: "assets/icons/favicon-96x96.png"
+        T.link rel: "icon", type: "image/png", sizes: "16x16", href: "assets/icons/favicon-16x16.png"
+        T.link rel: "manifest", href: "assets/manifest.json"
         T.meta name: "msapplication-TileColor", content: "#ffffff"
-        T.meta name: "msapplication-TileImage", content: "/assets/icons/ms-icon-144x144.png"
+        T.meta name: "msapplication-TileImage", content: "assets/icons/ms-icon-144x144.png"
         T.meta name: "theme-color", content: "#ffffff"
         #T.link rel: "stylesheet", href: "assets/css/vendor.css", "-content--encoding": "gzip"
         #T.link rel: "stylesheet", href: "assets/css/app.css", "-content--encoding": "gzip"
@@ -130,7 +130,7 @@ FB.api('/me', 'get', {'fields':'first_name,gender'}, function(response) {
         T.script "siteHandle = 'lowroller'; topDomain = 'jahbini.github.io'; require('initialize');"
         @storyHeadMatter()
       T.body =>
-        @celarien_body()
+        @lowroller_body()
   # 
   # section lowroller_body
   # 
@@ -168,7 +168,7 @@ FB.api('/me', 'get', {'fields':'first_name,gender'}, function(response) {
   # section cover
   # 
   cover: =>
-    T.div "#cover", style: "background-image:url(/assets/images/hooray-fade2.jpg);-moz-transform:scaleX(-1);-o-transform:scaleX(-1);-webkit-transform:scaleX(-1);transform:scaleX(-1);filter:FlipH;ms-filter:FlipH"
+    T.div "#cover", style: "background-image:url(assets/images/hooray-fade2.jpg);-moz-transform:scaleX(-1);-o-transform:scaleX(-1);-webkit-transform:scaleX(-1);transform:scaleX(-1);filter:FlipH;ms-filter:FlipH"
   # 
   # section footer
   # 
@@ -205,9 +205,9 @@ FB.api('/me', 'get', {'fields':'first_name,gender'}, function(response) {
   header: =>
     T.header "#header.o-grid.o-grid--bottom", style: "height:250px", =>
       T.div ".c-avatar.u-super", =>
-        T.img ".c-avatar__img", style: "-moz-transform:scaleX(-1);-o-transform:scaleX(-1);-webkit-transform:scaleX(-1);transform:scaleX(-1);filter:FlipH;ms-filter:FlipH", src: "http://www.gravatar.com/avatar/c105eda1978979dfb13059b8878ef95d?s=90"
+        T.img ".c-avatar__img", style: "-moz-transform:scaleX(-1);-o-transform:scaleX(-1);-webkit-transform:scaleX(-1);transform:scaleX(-1);filter:FlipH;ms-filter:FlipH", src: "https://www.gravatar.com/avatar/c105eda1978979dfb13059b8878ef95d?s=90"
       T.div ".o-grid__cell.o-grid__cell--width-30", =>
         T.h3 =>
           T.a ".fa.fa-home", href: "/", => T.raw "Home"
-  allMeta = [[["name","author"],["content","James A. Hinds: The Celarien's best friend.  I'm not him, I wear glasses"]],[["http-equiv","Content-Type"],["content","text/html"],["charset","UTF-8"]],[["name","viewport"],["content","width=device-width, initial-scale=1"]],[["name","description"],["content","some good thoughts. Maybe."]],[["name","keywords"],["content","romance, wisdom, tarot"]],[["property","fb:admins"],["content","1981510532097452"]],[["name","msapplication-TileColor"],["content","#ffffff"]],[["name","msapplication-TileImage"],["content","/assets/icons/ms-icon-144x144.png"]],[["name","theme-color"],["content","#ffffff"]]]
+  allMeta = [[["name","author"],["content","James A. Hinds: The Celarien's best friend.  I'm not him, I wear glasses"]],[["http-equiv","Content-Type"],["content","text/html"],["charset","UTF-8"]],[["name","viewport"],["content","width=device-width, initial-scale=1"]],[["name","description"],["content","some good thoughts. Maybe."]],[["name","keywords"],["content","romance, wisdom, tarot"]],[["property","fb:admins"],["content","1981510532097452"]],[["name","msapplication-TileColor"],["content","#ffffff"]],[["name","msapplication-TileImage"],["content","assets/icons/ms-icon-144x144.png"]],[["name","theme-color"],["content","#ffffff"]]]
   htmlTitle = "Practical Metaphysics and Harmonious Mana."
