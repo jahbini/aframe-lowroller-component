@@ -23,6 +23,7 @@ Install and use by directly including the [browser files](dist):
 <head>
   <title>My A-Frame Scene</title>
   <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+  <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.2.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://unpkg.com/aframe-lowroller-component/dist/aframe-lowroller-component.min.js"></script>
 </head>
 
