@@ -1,7 +1,10 @@
 ## aframe-lowroller-component
+## Demo
+https://jahbini.github.io/lowroller
 
-[![Version](http://img.shields.io/npm/v/aframe-lowroller-component.svg?style=flat-square)](https://npmjs.org/package/aframe-lowroller-component)
-[![License](http://img.shields.io/npm/l/aframe-lowroller-component.svg?style=flat-square)](https://npmjs.org/package/aframe-lowroller-component)
+## Release
+[![Version](https://img.shields.io/npm/v/aframe-lowroller-component.svg?style=flat-square)](https://npmjs.org/package/aframe-lowroller-component)
+[![License](https://img.shields.io/npm/l/aframe-lowroller-component.svg?style=flat-square)](https://npmjs.org/package/aframe-lowroller-component)
 
 robot soccerball
 
@@ -11,7 +14,10 @@ For [A-Frame](https://aframe.io).
 
 | Property | Description | Default Value |
 | -------- | ----------- | ------------- |
-|          |             |               |
+|    inner      |  inner mass           |               |
+|    outer      |  outer mass           |               |
+|    debug      |  show tetrahedral control forces           |   false            |
+|    pursuit      |  DOM ID or x y coordinate           |     idle          |
 
 ### Installation
 
