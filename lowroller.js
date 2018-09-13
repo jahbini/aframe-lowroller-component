@@ -411,7 +411,7 @@
       }
     },
     update: function() {
-      var data, el, ref;
+      var data, el, radius, ref;
       el = this.el;
       data = this.data;
       this.remove();
@@ -421,6 +421,10 @@
       }
       this.constraint = this.createConstraint();
       this.system.addConstraint(this.constraint);
+      radius = el.components.geometry.data.radius;
+      if (this.constraint.type === 'tetraForcer') {
+        this.system.addConstraint(new CANNON.DistanceConstraint(el.body, data.target.body, radius * 0.9, data.maxForce));
+      }
     },
     createConstraint: function() {
       var constraint, data, lA, lB;
