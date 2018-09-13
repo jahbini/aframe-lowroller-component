@@ -1,6 +1,6 @@
 {
   "name": "aframe-lowroller-component",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "robot soccerball",
   "main": "lowroller.js",
   "unpkg": "dist/aframe-lowroller-component.min.js",
