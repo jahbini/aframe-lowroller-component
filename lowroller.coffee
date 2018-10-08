@@ -327,6 +327,9 @@ AFRAME.registerComponent('tetra-motor',
       return
     @constraint = @createConstraint()
     @system.addConstraint @constraint
+    radius = el.components.geometry.data.radius
+    if @constraint.type == 'tetraForcer'
+      @system.addConstraint new CANNON.DistanceConstraint el.body, data.target.body, radius * 0.9, data.maxForce
     return
   createConstraint: ->
     constraint = undefined

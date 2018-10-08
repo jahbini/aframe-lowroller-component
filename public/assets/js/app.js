@@ -149,6 +149,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/button.coffee", function(exports, require, module) {
+// vim: et:ts=2:sw=2:sts=2:nowrap
 var $, B, T, V;
 
 $ = require('jquery');
@@ -157,7 +158,8 @@ T = Pylon.Halvalla;
 
 B = require('backbone');
 
-
+// The very model of a button interface
+//usage
 /*
 DebugButton = new BV 'debug'
  * initialize with legend and enabled boolean
@@ -180,7 +182,6 @@ Pylon.on "systemEvent:debug:hide-log", ()->
 $('#footer').hide()
 assert DebugButton == Pylon.get 'debug-button'
  */
-
 V = B.View.extend({
   tagName: "button",
   initialize: function(model, name, classes1) {
@@ -196,19 +197,15 @@ V = B.View.extend({
     var m, newVisual, old, visual;
     m = this.model;
     if (m.get('enabled')) {
-      visual = T.render((function(_this) {
-        return function() {
-          return T.button("#" + _this.name + "." + _this.classes + ".button-primary", _this.model.get('legend'));
-        };
-      })(this));
+      visual = T.render(() => {
+        return T.button(`#${this.name}.${this.classes}.button-primary`, this.model.get('legend'));
+      });
     } else {
-      visual = T.render((function(_this) {
-        return function() {
-          return T.button("#" + _this.name + "." + _this.classes + ".disabled", {
-            disabled: "disabled"
-          }, _this.model.get('legend'));
-        };
-      })(this));
+      visual = T.render(() => {
+        return T.button(`#${this.name}.${this.classes}.disabled`, {
+          disabled: "disabled"
+        }, this.model.get('legend'));
+      });
     }
     newVisual = $(visual);
     if ((old = this.$el)) {
@@ -234,18 +231,15 @@ module.exports = B.Model.extend({
   setTrigger: function() {
     var trigger;
     trigger = this.get('legend');
-    return this.set('trigger', this.name + ":" + (trigger.replace(/ /g, '-').toLocaleLowerCase()));
+    return this.set('trigger', `${this.name}:${trigger.replace(/ /g, '-').toLocaleLowerCase()}`);
   },
-  initialize: function(name, classes) {
+  initialize: function(name, classes = "three.columns") {
     this.name = name;
-    if (classes == null) {
-      classes = "three.columns";
-    }
-    Pylon.set("button-" + this.name, this);
+    Pylon.set(`button-${this.name}`, this);
     this.setTrigger();
     this.on("change:legend", this.setTrigger, this);
     this.view = new V(this, this.name, classes);
-    this.view.setElement($("#" + this.name));
+    this.view.setElement($(`#${this.name}`));
     this.on("change:enabled", this.view.render, this.view);
     return this;
   }
@@ -255,27 +249,48 @@ module.exports = B.Model.extend({
 
 require.register("components/fibonacci.coffee", function(exports, require, module) {
 var B, Fibonacci, T, Template, template,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  boundMethodCheck = function(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new Error('Bound instance method accessed before binding'); } };
 
 T = Pylon.Halvalla;
 
 B = require('backbone');
 
-Template = require("payload-/" + siteHandle + ".coffee");
+//{  Panel, PanelHeader, Link } = Pylon.Rebass
+
+//Panel = T.bless Panel
+//Link = T.bless Link
+//PanelHeader = T.bless PanelHeader
+Template = require(`payload-/${siteHandle}.coffee`);
 
 template = new Template(T);
 
-module.exports = T.bless(Fibonacci = (function(superClass) {
+module.exports = T.bless(Fibonacci = (function() {
   var Lozenge, ratioToPixels, rollSquare;
 
-  extend(Fibonacci, superClass);
+  class Fibonacci extends B.Model {
+    constructor() {
+      super(...arguments);
+      this.view = this.view.bind(this);
+    }
 
-  function Fibonacci() {
-    this.view = bind(this.view, this);
-    return Fibonacci.__super__.constructor.apply(this, arguments);
-  }
+    view(vnode) {
+      var collection, data, filter, intermediate, teacupContent;
+      boundMethodCheck(this, Fibonacci);
+      collection = vnode.attrs.collection;
+      filter = vnode.attrs.filter || function() {
+        return true;
+      };
+      intermediate = collection.filter(filter, this);
+      data = _(intermediate).sortBy(function(s) {
+        return s.get('category');
+      }).groupBy(function(s) {
+        return s.get('category');
+      });
+      teacupContent = Lozenge(0, x, y);
+      return teacupContent;
+    }
+
+  };
 
   Fibonacci.prototype.displayName = 'Fibonacci';
 
@@ -303,7 +318,7 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
     var lx, ly, px, shrink, xpx, ypx;
     shrink = Math.pow(0.618033, n);
     if (!(px = ratioToPixels(x, y))) {
-      return T.div("#last.bg-red.n-" + n + ".left", {
+      return T.div(`#last.bg-red.n-${n}.left`, {
         width: x,
         height: y,
         style: {
@@ -312,7 +327,7 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
         }
       });
     }
-    x = px.x, y = px.y, xpx = px.xpx, ypx = px.ypx;
+    ({x, y, xpx, ypx} = px);
     if (x > y) {
       lx = Math.floor(x - y);
       return T.div(".h-lozenge.left", {
@@ -337,13 +352,13 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
             return T.div({
               style: {
                 WebkitTransformOrigin: 'top left',
-                WebkitTransform: "scale(" + shrink + ")",
+                WebkitTransform: `scale(${shrink})`,
                 width: '711px',
                 height: '711px'
               }
             }, function() {
-              return T.div("#sq-" + n, {
-                onclick: "swap(" + n + ")"
+              return T.div(`#sq-${n}`, {
+                onclick: `swap(${n})`
               }, function() {
                 return squareOptions[n].src;
               });
@@ -362,13 +377,13 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
             return T.div({
               style: {
                 WebkitTransformOrigin: 'top left',
-                WebkitTransform: "scale(" + shrink + ")",
+                WebkitTransform: `scale(${shrink})`,
                 width: '711px',
                 height: '711px'
               }
             }, function() {
-              return T.div("#sq-" + n, {
-                onclick: "swap(" + n + ")"
+              return T.div(`#sq-${n}`, {
+                onclick: `swap(${n})`
               }, function() {
                 return squareOptions[n].src;
               });
@@ -400,13 +415,13 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
             return T.div({
               style: {
                 WebkitTransformOrigin: 'top left',
-                WebkitTransform: "scale(" + shrink + ")",
+                WebkitTransform: `scale(${shrink})`,
                 width: '711px',
                 height: '711px'
               }
             }, function() {
-              return T.div("#sq-" + n, {
-                onclick: "swap(" + n + ")"
+              return T.div(`#sq-${n}`, {
+                onclick: `swap(${n})`
               }, function() {
                 return squareOptions[n].src;
               });
@@ -427,13 +442,13 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
             return T.div({
               style: {
                 WebkitTransformOrigin: 'top left',
-                WebkitTransform: "scale(" + shrink + ")",
+                WebkitTransform: `scale(${shrink})`,
                 width: '711px',
                 height: '711px'
               }
             }, function() {
-              return T.div("#sq-" + n, {
-                onclick: "swap(" + n + ")"
+              return T.div(`#sq-${n}`, {
+                onclick: `swap(${n})`
               }, function() {
                 return squareOptions[n].src;
               });
@@ -444,83 +459,68 @@ module.exports = T.bless(Fibonacci = (function(superClass) {
     }
   };
 
-  Fibonacci.prototype.view = function(vnode) {
-    var collection, data, filter, intermediate, teacupContent;
-    collection = vnode.attrs.collection;
-    filter = vnode.attrs.filter || function() {
-      return true;
-    };
-    intermediate = collection.filter(filter, this);
-    data = _(intermediate).sortBy(function(s) {
-      return s.get('category');
-    }).groupBy(function(s) {
-      return s.get('category');
-    });
-    teacupContent = Lozenge(0, x, y);
-    return teacupContent;
-  };
-
   return Fibonacci;
 
-})(B.Model));
+}).call(this));
 
 });
 
 require.register("components/sidebar-view.coffee", function(exports, require, module) {
 var B, Sidebar, T, Template, template,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  boundMethodCheck = function(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new Error('Bound instance method accessed before binding'); } };
 
 T = Pylon.Halvalla;
 
 B = require('backbone');
 
-Template = require("payload-/" + siteHandle + ".coffee");
+//{  Panel, PanelHeader, Link } = Pylon.Rebass
+
+//Panel = T.bless Panel
+//Link = T.bless Link
+//PanelHeader = T.bless PanelHeader
+Template = require(`payload-/${siteHandle}.coffee`);
 
 template = new Template(T);
 
-module.exports = T.bless(Sidebar = (function(superClass) {
-  extend(Sidebar, superClass);
-
-  function Sidebar() {
-    this.view = bind(this.view, this);
-    this.clickHandler = bind(this.clickHandler, this);
-    return Sidebar.__super__.constructor.apply(this, arguments);
-  }
-
-  Sidebar.prototype.displayName = 'Sidebar';
-
-  Sidebar.prototype.clickHandler = function(e) {
-    var targ;
-    targ = e.currentTarget.parentNode.childNodes[1];
-    if ("true" === targ.getAttribute("aria-expanded")) {
-      targ.setAttribute('aria-expanded', false);
-      targ.setAttribute('hidden', "hidden");
-    } else {
-      targ.setAttribute('aria-expanded', 'true');
-      targ.removeAttribute('hidden');
+module.exports = T.bless(Sidebar = (function() {
+  class Sidebar extends B.Model {
+    constructor() {
+      super(...arguments);
+      this.clickHandler = this.clickHandler.bind(this);
+      this.view = this.view.bind(this);
     }
-  };
 
-  Sidebar.prototype.view = function(vnode) {
-    var collection, data, filter, intermediate, teacupContent;
-    collection = vnode.attrs.collection;
-    filter = vnode.attrs.filter || function() {
-      return true;
-    };
-    intermediate = collection.filter(filter, this);
-    data = _(intermediate).sortBy(function(s) {
-      return s.get('category');
-    }).groupBy(function(s) {
-      return s.get('category');
-    });
-    teacupContent = template.widgetWrap({
-      title: "Contents"
-    }, (function(_this) {
-      return function() {
+    clickHandler(e) {
+      var targ;
+      boundMethodCheck(this, Sidebar);
+      targ = e.currentTarget.parentNode.childNodes[1];
+      if ("true" === targ.getAttribute("aria-expanded")) {
+        targ.setAttribute('aria-expanded', false);
+        targ.setAttribute('hidden', "hidden");
+      } else {
+        targ.setAttribute('aria-expanded', 'true');
+        targ.removeAttribute('hidden');
+      }
+    }
+
+    view(vnode) {
+      var collection, data, filter, intermediate, teacupContent;
+      boundMethodCheck(this, Sidebar);
+      collection = vnode.attrs.collection;
+      filter = vnode.attrs.filter || function() {
+        return true;
+      };
+      intermediate = collection.filter(filter, this);
+      data = _(intermediate).sortBy(function(s) {
+        return s.get('category');
+      }).groupBy(function(s) {
+        return s.get('category');
+      });
+      teacupContent = template.widgetWrap({
+        title: "Contents"
+      }, () => {
         var result;
-        result = data.each(function(allCrap, category, stuff) {
+        result = data.each((allCrap, category, stuff) => {
           var catPostfix, catPrefix, headliner, stories;
           if (category === '-') {
             return;
@@ -530,40 +530,41 @@ module.exports = T.bless(Sidebar = (function(superClass) {
           catPrefix = category.replace(/[^\/]/g, '');
           catPrefix = catPrefix.replace(/\//g, ' -');
           catPostfix = catPostfix.toString().replace(/\//g, '- ');
-          return headliner = _(stories).find(function(story) {
+          return headliner = _(stories).find((story) => { //find index for this category
             var attrX;
             attrX = {
               'aria-expanded': 'false',
-              onclick: _this.clickHandler,
+              onclick: this.clickHandler,
               role: 'heading'
             };
-            return T.div('.btn-group.btn-group-vertical', function() {
+            return T.div('.btn-group.btn-group-vertical', () => {
               if (headliner) {
-                T.button(".btn.btn-group.btn-outline-light.btn-block", attrX, function() {
-                  return T.h5('', function() {
-                    T.text(category + ": ");
+                T.button(".btn.btn-group.btn-outline-light.btn-block", attrX, () => {
+                  return T.h5('', () => {
+                    T.text(`${category}: `);
                     return T.em(".h6", _.sample(headliner.get('headlines')));
                   });
                 });
               } else {
-                T.button(".btn.btn-group.btn-outline-light.btn-block", attrX, function() {
-                  return T.h6('', catPrefix + " " + catPostfix);
+                T.button(".btn.btn-group.btn-outline-light.btn-block", attrX, () => {
+                  return T.h6('', `${catPrefix} ${catPostfix}`);
                 });
               }
               return T.section(".pr1.btn-group.btn-outline-light", {
                 hidden: "hidden",
                 "aria-expanded": 'false'
-              }, function() {
-                return T.ul(".my-2", function() {
-                  return _(stuff[category]).each(function(story) {
+              }, () => {
+                return T.ul(".my-2", () => {
+                  return _(stuff[category]).each((story) => {
                     if ('category' === story.get('className')) {
                       return;
                     }
-                    return T.li("", function() {
+                    return T.li("", () => {
                       return T.a("", {
                         'color': 'white',
+                        //bg: 'gray.8'
                         href: siteHandle === story.get('siteHandle') ? story.href() : story.href(story.get('siteHandle'))
-                      }, "" + (story.get('title')));
+                      }, `${story.get('title')}`);
                     });
                   });
                 });
@@ -574,20 +575,23 @@ module.exports = T.bless(Sidebar = (function(superClass) {
         if (!result) {
           return T.text("No Stories");
         }
-      };
-    })(this));
-    return teacupContent;
+      });
+      return teacupContent;
+    }
+
   };
+
+  Sidebar.prototype.displayName = 'Sidebar';
 
   return Sidebar;
 
-})(B.Model));
+}).call(this));
 
 });
 
 require.register("components/storybar-view.coffee", function(exports, require, module) {
-var B, Storybar, T, siteBase, z,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+// put outbound links into story
+var B, Storybar, T, siteBase, z;
 
 T = Pylon.Halvalla;
 
@@ -598,60 +602,63 @@ siteBase = topDomain.split('.');
 z = siteBase.shift();
 
 module.exports = T.bless(Storybar = (function() {
-  function Storybar() {
-    this.view = bind(this.view, this);
-  }
+  class Storybar {
+    constructor() {
+      this.view = this.view.bind(this);
+    }
 
-  Storybar.prototype.displayName = 'Storybar';
-
-  Storybar.prototype.view = function(vnode) {
-    var badClass, badHeadline, collection, error, filter, intermediate, story, storyFrom;
-    collection = vnode.attrs.collection;
-    filter = vnode.attrs.filter || function() {
-      return true;
-    };
-    intermediate = collection.filter(filter, this);
-    story = null;
-    while (!story) {
-      story = _.sample(intermediate);
-      if (!story) {
+    view(vnode) {
+      var badClass, badHeadline, collection, error, filter, intermediate, story, storyFrom;
+      collection = vnode.attrs.collection;
+      filter = vnode.attrs.filter || function() {
+        return true;
+      };
+      intermediate = collection.filter(filter, this);
+      story = null;
+      while (!story) {
+        story = _.sample(intermediate);
+        if (!story) {
+          return null;
+        }
+        badClass = 'category' === story.get('className');
+        badHeadline = (story.get('headlines')) < 1;
+        if (badClass || badHeadline) {
+          story = null;
+        }
+      }
+      try {
+        storyFrom = story.get('site');
+      } catch (error1) {
+        error = error1;
+        console.log("Ailing Story", story);
         return null;
       }
-      badClass = 'category' === story.get('className');
-      badHeadline = (story.get('headlines')) < 1;
-      if (badClass || badHeadline) {
-        story = null;
-      }
-    }
-    try {
-      storyFrom = story.get('site');
-    } catch (error1) {
-      error = error1;
-      console.log("Ailing Story", story);
-      return null;
-    }
-    siteBase = topDomain.split('.');
-    siteBase.shift();
-    siteBase.unshift(storyFrom);
-    return T.div(".c-card", function() {
-      return T.div(".c-card__item.bg-silver", function() {
-        return T.a(".c-link.c-link--brand", {
-          href: story.href('http://' + siteBase.join('.'))
-        }, function() {
-          return T.div(function() {
-            return T.h4(function() {
-              T.raw("From Around the Web: ");
-              return T.span(".u-text--quiet.u-text--highlight", (story.get('title')) + ": " + ((_.sample(story.get('headlines'))) || ''));
+      siteBase = topDomain.split('.');
+      siteBase.shift();
+      siteBase.unshift(storyFrom);
+      return T.div(".c-card", function() {
+        return T.div(".c-card__item.bg-silver", function() {
+          return T.a(".c-link.c-link--brand", {
+            href: story.href('http://' + siteBase.join('.'))
+          }, function() {
+            return T.div(function() {
+              return T.h4(function() {
+                T.raw("From Around the Web: ");
+                return T.span(".u-text--quiet.u-text--highlight", `${story.get('title')}: ${(_.sample(story.get('headlines'))) || ''}`);
+              });
             });
           });
         });
       });
-    });
+    }
+
   };
+
+  Storybar.prototype.displayName = 'Storybar';
 
   return Storybar;
 
-})());
+}).call(this));
 
 });
 
@@ -853,49 +860,25 @@ module.exports = biblio;
 
 require.register("controllers/base/controller.coffee", function(exports, require, module) {
 'use strict';
-var BaseController,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var BaseController;
 
-module.exports = BaseController = (function(superClass) {
-  extend(BaseController, superClass);
-
-  function BaseController() {
-    return BaseController.__super__.constructor.apply(this, arguments);
-  }
-
-  return BaseController;
-
-})(Chaplin.Controller);
+module.exports = BaseController = class BaseController extends Chaplin.Controller {};
 
 });
 
 require.register("controllers/footer.coffee", function(exports, require, module) {
-var BaseController, FooterController,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var BaseController, FooterController;
 
 BaseController = require('controllers/base/controller');
 
 'use strict';
 
-module.exports = FooterController = (function(superClass) {
-  extend(FooterController, superClass);
-
-  function FooterController() {
-    return FooterController.__super__.constructor.apply(this, arguments);
-  }
-
-  return FooterController;
-
-})(BaseController);
+module.exports = FooterController = class FooterController extends BaseController {};
 
 });
 
 require.register("controllers/home.coffee", function(exports, require, module) {
-var HomeController, PageController, log,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var HomeController, PageController, log;
 
 PageController = require('controllers/page');
 
@@ -903,79 +886,51 @@ log = require('loglevel');
 
 'use strict';
 
-module.exports = HomeController = (function(superClass) {
-  extend(HomeController, superClass);
-
-  function HomeController() {
-    return HomeController.__super__.constructor.apply(this, arguments);
+module.exports = HomeController = class HomeController extends PageController {
+  showit() {
+    return false;
   }
 
-  HomeController.prototype.showit = function() {
-    return false;
-  };
-
-  HomeController.prototype.show = function() {
+  show() {
     return log.info('HomeController:show');
-  };
+  }
 
-  return HomeController;
-
-})(PageController);
+};
 
 });
 
 require.register("controllers/menu.coffee", function(exports, require, module) {
-var BaseController, MenuController,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var BaseController, MenuController;
 
 BaseController = require('controllers/base/controller');
 
 'use strict';
 
-module.exports = MenuController = (function(superClass) {
-  extend(MenuController, superClass);
-
-  function MenuController() {
-    return MenuController.__super__.constructor.apply(this, arguments);
-  }
-
-  return MenuController;
-
-})(BaseController);
+module.exports = MenuController = class MenuController extends BaseController {};
 
 });
 
 require.register("controllers/page.coffee", function(exports, require, module) {
-var BaseController, PageController,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var BaseController, PageController;
 
 BaseController = require('controllers/base/controller');
 
 'use strict';
 
-module.exports = PageController = (function(superClass) {
-  extend(PageController, superClass);
-
-  function PageController() {
-    return PageController.__super__.constructor.apply(this, arguments);
-  }
-
-  PageController.prototype.beforeAction = function(actionParams, controllerOptions) {
+module.exports = PageController = class PageController extends BaseController {
+  beforeAction(actionParams, controllerOptions) {
     Chaplin.mediator.controllerAction = controllerOptions.action;
     return Chaplin.mediator.actionParams = actionParams;
-  };
+  }
 
-  return PageController;
-
-})(BaseController);
+};
 
 });
 
 require.register("initialize.coffee", function(exports, require, module) {
-var Backbone, Fibonacci, FontFaceObserver, Mithril, Palx, Pylon, PylonTemplate, Sidebar, Storybar, T, allStories, myStories, newColors, ref, routes,
-  slice = [].slice;
+
+//routes = require 'routes'
+var Backbone, Fibonacci, FontFaceObserver, Mithril, Palx, Pylon, PylonTemplate, Sidebar, Storybar, T, allStories, myStories, newColors, routes;
 
 window.$ = jQuery;
 
@@ -984,7 +939,9 @@ window._ = require('lodash');
 Backbone = require('backbone');
 
 PylonTemplate = Backbone.Model.extend({
+  //  state: (require './models/state.coffee').state
   Mithril: require('mithril'),
+  //Mui: require 'mui'
   Mss: require('mss-js'),
   Halvalla: require('halvalla/lib/halvalla-mithril'),
   Palx: require('palx'),
@@ -994,16 +951,15 @@ PylonTemplate = Backbone.Model.extend({
 
 window.Pylon = Pylon = new PylonTemplate;
 
-Pylon.Button = require('./components/button');
+Pylon.Button = require('./components/button'); // Pylon is assumed to be a global for this guy
 
-Pylon.on('all', function() {
-  var event, mim, rest;
-  event = arguments[0], rest = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+Pylon.on('all', function(event, ...rest) {
+  var mim;
   mim = event.match(/((.*):.*):/);
   if (!mim || mim[2] !== 'systemEvent') {
     return null;
   }
-  applogger("event " + event);
+  applogger(`event ${event}`);
   Pylon.trigger(mim[1], event, rest);
   Pylon.trigger(mim[2], event, rest);
   return null;
@@ -1031,9 +987,10 @@ newColors.black = document.styling.black;
 
 newColors.white = document.styling.white;
 
-ref = require('models/stories'), myStories = ref.myStories, allStories = ref.allStories;
+// gather the global JSONs into Backbone collections 
+({myStories, allStories} = require('models/stories'));
 
-
+// suppress react styling
 /*
 styled= require   'styled-components'
 { injectGlobal, keyframes } = styled
@@ -1047,7 +1004,7 @@ injectGlobal"""
   }
 """
  */
-
+// Initialize the application on DOM ready event.
 $(function() {
   var badDog, bloviation, divs, mine, realNode, sidebarContents, theirs;
   mine = {
@@ -1064,6 +1021,7 @@ $(function() {
   };
   try {
     realNode = document.getElementById('sidebar');
+    //sidebarContents = T.Provider  theme: colors: newColors, Sidebar mine
     sidebarContents = Sidebar(mine);
     Mithril.render(realNode, sidebarContents);
   } catch (error) {
@@ -1083,134 +1041,503 @@ $(function() {
 });
 
 require.register("lib/badass.coffee", function(exports, require, module) {
-var B, HolyGrail, Link, Panel, PanelHeader, T, ref,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var B, Link, Panel, PanelHeader, T;
 
 T = Pylon.Halvalla;
 
 B = require('backbone');
 
-ref = Pylon.Rebass, Panel = ref.Panel, PanelHeader = ref.PanelHeader, Link = ref.Link;
+({Panel, PanelHeader, Link} = Pylon.Rebass);
 
-Panel = T.bless(Panel);
+/*  
+Panel = T.bless Panel
+Link = T.bless Link
+PanelHeader = T.bless PanelHeader
 
-Link = T.bless(Link);
+module.exports.holyGrail = T.bless class HolyGrail extends React.Component
 
-PanelHeader = T.bless(PanelHeader);
+  render: ()=>
+    options = _.pluck @props, 'user','navLinks','story','page'
+    T.div '.o-grid.o-grid--full', ()->
+      @props.header '.o-grid__cell',options
+      T.div '.o-grid__cell',->
+        T.div '.o-grid',->
+          @props.left
+        T.div '.o-grid__cell',->
+          @props.middle
+        T.div '.o-grid__cell',->
+          @props.right
+      @props.footer '.o-grid__cell',options
 
-module.exports.holyGrail = T.bless(HolyGrail = (function(superClass) {
-  extend(HolyGrail, superClass);
-
-  function HolyGrail(props1) {
-    this.props = props1;
-    this.render = bind(this.render, this);
-  }
-
-  HolyGrail.prototype.render = function() {
-    var options;
-    options = _.pluck(this.props, 'user', 'navLinks', 'story', 'page');
-    return T.div('.o-grid.o-grid--full', function() {
-      this.props.header('.o-grid__cell', options);
-      T.div('.o-grid__cell', function() {
-        T.div('.o-grid', function() {
-          return this.props.left;
-        });
-        T.div('.o-grid__cell', function() {
-          return this.props.middle;
-        });
-        return T.div('.o-grid__cell', function() {
-          return this.props.right;
-        });
-      });
-      return this.props.footer('.o-grid__cell', options);
-    });
-  };
-
-  return HolyGrail;
-
-})(React.Component));
-
-module.exports.Panel = Panel = (function(superClass) {
-  extend(Panel, superClass);
-
-  Panel.prototype.displayName = 'Panel';
-
-  function Panel(props1) {
-    this.props = props1;
-    this.view = bind(this.view, this);
-    this.style = bind(this.style, this);
-    this;
-  }
-
-  Panel.prototype.style = function() {
-    return {
-      overflow: 'hidden',
-      borderRadius: px(this.props.theme.radius),
-      borderWidth: px(1),
+module.exports.Panel =   class Panel extends B.Model
+  displayName: 'Panel'
+  constructor: (@props)->
+    @
+  style: ()=>
+      overflow: 'hidden'
+      borderRadius: px @props.theme.radius
+      borderWidth: px 1
       borderStyle: 'solid'
-    };
-  };
+  view: ()=>
+      T.div style: @style @props.style,children: @props.children
 
-  Panel.prototype.view = function() {
-    return T.div({
-      style: this.style(this.props.style, {
-        children: this.props.children
-      })
-    });
-  };
+module.exports.PanelHeader =   class PanelHeader extends B.Model
+  displayName: 'PanelHeader'
+  constructor: (@vnode)->
+    @props= f:2, p:2
+    console.log "PanelHeader constructor",@vnode
+    @
 
-  return Panel;
+  style: (props)=>
+    fontWeight: bold(props),
+    borderBottomWidth: px(1),
+    borderBottomStyle: 'solid',
+  view: ()->
+      T.crel 'Header', style: @style @vode.style
 
-})(B.Model);
-
-module.exports.PanelHeader = PanelHeader = (function(superClass) {
-  extend(PanelHeader, superClass);
-
-  PanelHeader.prototype.displayName = 'PanelHeader';
-
-  function PanelHeader(vnode) {
-    this.vnode = vnode;
-    this.style = bind(this.style, this);
-    this.props = {
-      f: 2,
-      p: 2
-    };
-    console.log("PanelHeader constructor", this.vnode);
-    this;
-  }
-
-  PanelHeader.prototype.style = function(props) {
-    return {
-      fontWeight: bold(props),
-      borderBottomWidth: px(1),
-      borderBottomStyle: 'solid'
-    };
-  };
-
-  PanelHeader.prototype.view = function() {
-    return T.crel('Header', {
-      style: this.style(this.vode.style)
-    });
-  };
-
-  return PanelHeader;
-
-})(B.Model);
+*/
 
 });
 
-require.register("lib/utils.coffee", function(exports, require, module) {
+;require.register("lib/utils.coffee", function(exports, require, module) {
+  
+  // utilities
+
 var Pylon, Utility,
-  hasProp = {}.hasOwnProperty,
-  slice = [].slice;
+  hasProp = {}.hasOwnProperty;
 
 Pylon = window.Pylon;
 
+// Add additional application-specific properties and methods
 module.exports = new (Utility = (function() {
-  function Utility() {}
+  class Utility {
+    // dashHelper -> dash-helper
+    dasherize(string) {
+      return string.replace(/[A-Z]/g, function(char, index) {
+        return (index !== 0 ? '-' : '') + char.toLowerCase();
+      });
+    }
 
+    // Cookie fallback
+    // ---------------
+
+    // Get a cookie by its name
+    getCookie(key) {
+      var i, len, pair, pairs, val;
+      pairs = document.cookie.split('; ');
+      for (i = 0, len = pairs.length; i < len; i++) {
+        pair = pairs[i];
+        val = pair.split('=');
+        if (decodeURIComponent(val[0]) === key) {
+          return decodeURIComponent(val[1] || '');
+        }
+      }
+      return null;
+    }
+
+    // Set a session cookie
+    setCookie(key, value, options = {}) {
+      var expires, getOption, payload;
+      payload = `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+      getOption = function(name) {
+        if (options[name]) {
+          return `; ${name}=${options[name]}`;
+        } else {
+          return '';
+        }
+      };
+      expires = options.expires ? `; expires=${options.expires.toUTCString()}` : '';
+      return document.cookie = [payload, expires, getOption('path'), getOption('domain'), getOption('secure')].join('');
+    }
+
+    expireCookie(key) {
+      return document.cookie = `${key}=nil; expires=${(new Date).toGMTString()}`;
+    }
+
+    // Load additonal JavaScripts
+    // --------------------------
+
+    // We don’t use jQuery here because jQuery does not attach an error
+    // handler to the script. In jQuery, a proper error handler only works
+    // for same-origin scripts which can be loaded via XHR.
+    loadLib(url, success, error, timeout = 7500) {
+      var head, onload, script, timeoutHandle;
+      head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+      script = document.createElement('script');
+      script.async = 'async';
+      script.src = url;
+      onload = function(_, aborted = false) {
+        if (!(aborted || !script.readyState || script.readyState === 'complete')) {
+          return;
+        }
+        clearTimeout(timeoutHandle);
+        // Handle memory leak in IE
+        script.onload = script.onreadystatechange = script.onerror = null;
+        if (head && script.parentNode) {
+          // Remove the script elem and its reference
+          head.removeChild(script);
+        }
+        script = void 0;
+        if (success && !aborted) {
+          return success();
+        }
+      };
+      script.onload = script.onreadystatechange = onload;
+      // This is what jQuery is missing
+      script.onerror = function() {
+        onload(null, true);
+        if (error) {
+          return error();
+        }
+      };
+      timeoutHandle = setTimeout(script.onerror, timeout);
+      return head.insertBefore(script, head.firstChild);
+    }
+
+    // Functional helpers for handling asynchronous dependancies and I/O
+    // -----------------------------------------------------------------
+
+    // Wrap methods so they can be called before a deferred is resolved.
+    // The actual methods are called once the deferred is resolved.
+
+    // Parameters:
+
+    // Expects an options hash with the following properties:
+
+    // deferred
+    //   The Deferred object to wait for.
+
+    // methods
+    //   Either:
+    //   - A string with a method name e.g. 'method'
+    //   - An array of strings e.g. ['method1', 'method2']
+    //   - An object with methods e.g. {method: -> alert('resolved!')}
+
+    // host (optional)
+    //   If you pass an array of strings in the `methods` parameter the methods
+    //   are fetched from this object. Defaults to `deferred`.
+
+    // target (optional)
+    //   The target object the new wrapper methods are created at.
+    //   Defaults to host if host is given, otherwise it defaults to deferred.
+
+    // onDeferral (optional)
+    //   An additional callback function which is invoked when the method is called
+    //   and the Deferred isn't resolved yet.
+    //   After the method is registered as a done handler on the Deferred,
+    //   this callback is invoked. This can be used to trigger the resolving
+    //   of the Deferred.
+
+    // Examples:
+
+    // deferMethods(deferred: def, methods: 'foo')
+    //   Wrap the method named foo of the given deferred def and
+    //   postpone all calls until the deferred is resolved.
+
+    // deferMethods(deferred: def, methods: def.specialMethods)
+    //   Read all methods from the hash def.specialMethods and
+    //   create wrapped methods with the same names at def.
+
+    // deferMethods(
+    //   deferred: def, methods: def.specialMethods, target: def.specialMethods
+    // )
+    //   Read all methods from the object def.specialMethods and
+    //   create wrapped methods at def.specialMethods,
+    //   overwriting the existing ones.
+
+    // deferMethods(deferred: def, host: obj, methods: ['foo', 'bar'])
+    //   Wrap the methods obj.foo and obj.bar so all calls to them are postponed
+    //   until def is resolved. obj.foo and obj.bar are overwritten
+    //   with their wrappers.
+
+    deferMethods(options) {
+      var deferred, func, host, i, len, methods, methodsHash, name, onDeferral, results, target;
+      // Process options
+      deferred = options.deferred;
+      methods = options.methods;
+      host = options.host || deferred;
+      target = options.target || host;
+      onDeferral = options.onDeferral;
+      // Hash with named functions
+      methodsHash = {};
+      if (typeof methods === 'string') {
+        // Transform a single method string into an object
+        methodsHash[methods] = host[methods];
+      } else if (methods.length && methods[0]) {
+// Transform a method list into an object
+        for (i = 0, len = methods.length; i < len; i++) {
+          name = methods[i];
+          func = host[name];
+          if (typeof func !== 'function') {
+            throw new TypeError(`utils.deferMethods: method ${name} not found on host ${host}`);
+          }
+          methodsHash[name] = func;
+        }
+      } else {
+        // Treat methods parameter as a hash, no transformation
+        methodsHash = methods;
+      }
+      results = [];
+      for (name in methodsHash) {
+        if (!hasProp.call(methodsHash, name)) continue;
+        func = methodsHash[name];
+        if (typeof func !== 'function') {
+          // Ignore non-function properties
+          continue;
+        }
+        // Replace method with wrapper
+        results.push(target[name] = utils.createDeferredFunction(deferred, func, target, onDeferral));
+      }
+      return results;
+    }
+
+    // Creates a function which wraps `func` and defers calls to
+    // it until the given `deferred` is resolved. Pass an optional `context`
+    // to determine the this `this` binding of the original function.
+    // Defaults to `deferred`. The optional `onDeferral` function to after
+    // original function is registered as a done callback.
+    createDeferredFunction(deferred, func, context = deferred, onDeferral) {
+      return function() {        // Return a wrapper function
+        var args;
+        // Save the original arguments
+        args = arguments;
+        if (deferred.state() === 'resolved') {
+          // Deferred already resolved, call func immediately
+          return func.apply(context, args);
+        } else {
+          // Register a done handler
+          deferred.done(function() {
+            return func.apply(context, args);
+          });
+          // Invoke the onDeferral callback
+          if (typeof onDeferral === 'function') {
+            return onDeferral.apply(context);
+          }
+        }
+      };
+    }
+
+    // Turns methods into accumulators, collecting calls and sending
+    // them out in intervals
+    // obj
+    //   the object the methods are read from and written to
+    // methods
+    //   zero or more names (strings) of methods (object members) to be wrapped
+    wrapAccumulators(obj, methods) {
+      var func, i, len, name;
+// Replace methods
+      for (i = 0, len = methods.length; i < len; i++) {
+        name = methods[i];
+        func = obj[name];
+        if (typeof func !== 'function') {
+          throw new TypeError(`utils.wrapAccumulators: method ${name} not found`);
+        }
+        // Replace method
+        obj[name] = utils.createAccumulator(name, obj[name], obj);
+      }
+      // Bind to unload to synchronously flush accumulated remains
+      return $(window).unload(() => {
+        var handler, ref, results;
+        ref = utils.accumulator.handlers;
+        results = [];
+        for (name in ref) {
+          handler = ref[name];
+          results.push(handler({
+            async: false
+          }));
+        }
+        return results;
+      });
+    }
+
+    // Returns an accumulator for the given 'func' with the
+    // parameter list (data, success, error, options)
+    createAccumulator(name, func, context) {
+      var acc, accumulatedError, accumulatedSuccess, cleanup, id;
+      // Create a unique ID for the function, save it as a
+      // property of the function object
+      if (!(id = func.__uniqueID)) {
+        id = func.__uniqueID = name + String(Math.random()).replace('.', '');
+      }
+      acc = utils.accumulator;
+      // Cleanup data
+      cleanup = function() {
+        delete acc.collectedData[id];
+        delete acc.successHandlers[id];
+        return delete acc.errorHandlers[id];
+      };
+      // Create accumulated success and error callbacks
+      accumulatedSuccess = function() {
+        var handler, handlers, i, len;
+        handlers = acc.successHandlers[id];
+        if (handlers) {
+          for (i = 0, len = handlers.length; i < len; i++) {
+            handler = handlers[i];
+            handler.apply(this, arguments);
+          }
+        }
+        return cleanup();
+      };
+      accumulatedError = function() {
+        var handler, handlers, i, len;
+        handlers = acc.errorHandlers[id];
+        if (handlers) {
+          for (i = 0, len = handlers.length; i < len; i++) {
+            handler = handlers[i];
+            handler.apply(this, arguments);
+          }
+        }
+        return cleanup();
+      };
+      // Resulting function
+      return function(data, success, error, ...rest) {
+        var handler;
+        // Store data, success and error handlers
+        if (data) {
+          acc.collectedData[id] = (acc.collectedData[id] || []).concat(data);
+        }
+        if (success) {
+          acc.successHandlers[id] = (acc.successHandlers[id] || []).concat(success);
+        }
+        if (error) {
+          acc.errorHandlers[id] = (acc.errorHandlers[id] || []).concat(error);
+        }
+        // Set timeout if not already set
+        if (acc.handles[id]) {
+          return;
+        }
+        handler = function(options = options) {
+          var args, collectedData;
+          if (!(collectedData = acc.collectedData[id])) {
+            return;
+          }
+          // Call the original function
+          args = [collectedData, accumulatedSuccess, accumulatedError].concat(rest);
+          func.apply(context, args);
+          // Clear timeout
+          clearTimeout(acc.handles[id]);
+          // Remove handles and handlers
+          delete acc.handles[id];
+          return delete acc.handlers[id];
+        };
+        // Save the handler
+        acc.handlers[id] = handler;
+        // Wrap handler in additional function to ignore
+        // Firefox' latency arguments
+        return acc.handles[id] = setTimeout((function() {
+          return handler();
+        }), acc.interval);
+      };
+    }
+
+    // Call the given function `func` when the global event `eventType` occurs.
+    // Defaults to 'login', so the `func` is called when
+    // the user has successfully logged in.
+    // When the function is called, `this` points to the given `context`.
+    // You may pass a `loginContext` for the UI context where
+    // the login was triggered.
+    afterLogin(context, func, eventType = 'login', ...args) {
+      var loginHandler;
+      if (mediator.user) {
+        // All fine, just pass through
+        return func.apply(context, args);
+      } else {
+        // Register a handler for the given event
+        loginHandler = function() {
+          // Cleanup
+          mediator.unsubscribe(eventType, loginHandler);
+          // Pass to wrapped function
+          return func.apply(context, args);
+        };
+        return mediator.subscribe(eventType, loginHandler);
+      }
+    }
+
+    deferMethodsUntilLogin(obj, methods, eventType = 'login') {
+      var func, i, len, name, results;
+      if (typeof methods === 'string') {
+        methods = [methods];
+      }
+      results = [];
+      for (i = 0, len = methods.length; i < len; i++) {
+        name = methods[i];
+        func = obj[name];
+        if (typeof func !== 'function') {
+          throw new TypeError(`utils.deferMethodsUntilLogin: method ${name} not found`);
+        }
+        results.push(obj[name] = _(utils.afterLogin).bind(null, obj, func, eventType));
+      }
+      return results;
+    }
+
+    // Delegates to afterLogin, but triggers the login dialog if the user
+    // isn't logged in
+    // and calls preventDefault if an event object is passed.
+    ensureLogin(context, func, loginContext, eventType = 'login', ...args) {
+      var e;
+      utils.afterLogin(context, func, eventType, ...args);
+      if (!mediator.user) {
+        // If an event is passed to the original function, prevent the
+        // default action
+        if ((e = args[0]) && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+        }
+        // Start login process
+        return mediator.publish('!showLogin', loginContext);
+      }
+    }
+
+    // Wrap methods which need a logged-in user.
+    // Trigger the login when they are called and there is no user.
+    // Arguments:
+    // `obj`: The object whose methods should be wrapped
+    // `methods`: A string or an array of strings with method names
+    // `loginContext`: object with login context information, should have
+    //                 a `description` property
+    // `eventType`: The global PubSub event the actual method call will wait for.
+    //              Defaults to 'login'.
+    ensureLoginForMethods(obj, methods, loginContext, eventType = 'login') {
+      var func, i, len, name, results;
+      if (typeof methods === 'string') {
+        // Transform a single method string into a list
+        methods = [methods];
+      }
+      results = [];
+      for (i = 0, len = methods.length; i < len; i++) {
+        name = methods[i];
+        func = obj[name];
+        if (typeof func !== 'function') {
+          throw new TypeError(`utils.ensureLoginForMethods: method ${name} not found`);
+        }
+        results.push(obj[name] = _(utils.ensureLogin).bind(null, obj, func, loginContext, eventType));
+      }
+      return results;
+    }
+
+    // Facebook image helper
+    // ---------------------
+    facebookImageURL(fbId, type = 'square') {
+      var accessToken, params;
+      // Create query string
+      params = {
+        type: type
+      };
+      // Add the Facebook access token if present
+      if (mediator.user) {
+        accessToken = mediator.user.get('accessToken');
+        if (accessToken) {
+          params.access_token = accessToken;
+        }
+      }
+      return `https://graph.facebook.com/${fbId}/picture?${$.param(params)}`;
+    }
+
+  };
+
+  // String helpers
+  // --------------
+
+  // camel-case-helper > camelCaseHelper
   Utility.prototype.camelize = (function() {
     var camelizer, regexp;
     regexp = /[-_]([a-z])/g;
@@ -1222,12 +1549,12 @@ module.exports = new (Utility = (function() {
     };
   })();
 
-  Utility.prototype.dasherize = function(string) {
-    return string.replace(/[A-Z]/g, function(char, index) {
-      return (index !== 0 ? '-' : '') + char.toLowerCase();
-    });
-  };
+  // Persistent data storage
+  // -----------------------
 
+  // sessionStorage with session cookie fallback
+  // sessionStorage(key) gets the value for 'key'
+  // sessionStorage(key, value) set the value for 'key'
   Utility.prototype.sessionStorage = (function() {
     if (window.sessionStorage && sessionStorage.getItem && sessionStorage.setItem && sessionStorage.removeItem) {
       return function(key, value) {
@@ -1255,6 +1582,7 @@ module.exports = new (Utility = (function() {
     }
   })();
 
+  // sessionStorageRemove(key) removes the storage entry for 'key'
   Utility.prototype.sessionStorageRemove = (function() {
     if (window.sessionStorage && sessionStorage.getItem && sessionStorage.setItem && sessionStorage.removeItem) {
       return function(key) {
@@ -1267,131 +1595,7 @@ module.exports = new (Utility = (function() {
     }
   })();
 
-  Utility.prototype.getCookie = function(key) {
-    var i, len, pair, pairs, val;
-    pairs = document.cookie.split('; ');
-    for (i = 0, len = pairs.length; i < len; i++) {
-      pair = pairs[i];
-      val = pair.split('=');
-      if (decodeURIComponent(val[0]) === key) {
-        return decodeURIComponent(val[1] || '');
-      }
-    }
-    return null;
-  };
-
-  Utility.prototype.setCookie = function(key, value, options) {
-    var expires, getOption, payload;
-    if (options == null) {
-      options = {};
-    }
-    payload = (encodeURIComponent(key)) + "=" + (encodeURIComponent(value));
-    getOption = function(name) {
-      if (options[name]) {
-        return "; " + name + "=" + options[name];
-      } else {
-        return '';
-      }
-    };
-    expires = options.expires ? "; expires=" + (options.expires.toUTCString()) : '';
-    return document.cookie = [payload, expires, getOption('path'), getOption('domain'), getOption('secure')].join('');
-  };
-
-  Utility.prototype.expireCookie = function(key) {
-    return document.cookie = key + "=nil; expires=" + ((new Date).toGMTString());
-  };
-
-  Utility.prototype.loadLib = function(url, success, error, timeout) {
-    var head, onload, script, timeoutHandle;
-    if (timeout == null) {
-      timeout = 7500;
-    }
-    head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
-    script = document.createElement('script');
-    script.async = 'async';
-    script.src = url;
-    onload = function(_, aborted) {
-      if (aborted == null) {
-        aborted = false;
-      }
-      if (!(aborted || !script.readyState || script.readyState === 'complete')) {
-        return;
-      }
-      clearTimeout(timeoutHandle);
-      script.onload = script.onreadystatechange = script.onerror = null;
-      if (head && script.parentNode) {
-        head.removeChild(script);
-      }
-      script = void 0;
-      if (success && !aborted) {
-        return success();
-      }
-    };
-    script.onload = script.onreadystatechange = onload;
-    script.onerror = function() {
-      onload(null, true);
-      if (error) {
-        return error();
-      }
-    };
-    timeoutHandle = setTimeout(script.onerror, timeout);
-    return head.insertBefore(script, head.firstChild);
-  };
-
-  Utility.prototype.deferMethods = function(options) {
-    var deferred, func, host, i, len, methods, methodsHash, name, onDeferral, results, target;
-    deferred = options.deferred;
-    methods = options.methods;
-    host = options.host || deferred;
-    target = options.target || host;
-    onDeferral = options.onDeferral;
-    methodsHash = {};
-    if (typeof methods === 'string') {
-      methodsHash[methods] = host[methods];
-    } else if (methods.length && methods[0]) {
-      for (i = 0, len = methods.length; i < len; i++) {
-        name = methods[i];
-        func = host[name];
-        if (typeof func !== 'function') {
-          throw new TypeError("utils.deferMethods: method " + name + " not found on host " + host);
-        }
-        methodsHash[name] = func;
-      }
-    } else {
-      methodsHash = methods;
-    }
-    results = [];
-    for (name in methodsHash) {
-      if (!hasProp.call(methodsHash, name)) continue;
-      func = methodsHash[name];
-      if (typeof func !== 'function') {
-        continue;
-      }
-      results.push(target[name] = utils.createDeferredFunction(deferred, func, target, onDeferral));
-    }
-    return results;
-  };
-
-  Utility.prototype.createDeferredFunction = function(deferred, func, context, onDeferral) {
-    if (context == null) {
-      context = deferred;
-    }
-    return function() {
-      var args;
-      args = arguments;
-      if (deferred.state() === 'resolved') {
-        return func.apply(context, args);
-      } else {
-        deferred.done(function() {
-          return func.apply(context, args);
-        });
-        if (typeof onDeferral === 'function') {
-          return onDeferral.apply(context);
-        }
-      }
-    };
-  };
-
+  // Accumulators
   Utility.prototype.accumulator = {
     collectedData: {},
     handles: {},
@@ -1401,262 +1605,56 @@ module.exports = new (Utility = (function() {
     interval: 2000
   };
 
-  Utility.prototype.wrapAccumulators = function(obj, methods) {
-    var func, i, len, name;
-    for (i = 0, len = methods.length; i < len; i++) {
-      name = methods[i];
-      func = obj[name];
-      if (typeof func !== 'function') {
-        throw new TypeError("utils.wrapAccumulators: method " + name + " not found");
-      }
-      obj[name] = utils.createAccumulator(name, obj[name], obj);
-    }
-    return $(window).unload((function(_this) {
-      return function() {
-        var handler, ref, results;
-        ref = utils.accumulator.handlers;
-        results = [];
-        for (name in ref) {
-          handler = ref[name];
-          results.push(handler({
-            async: false
-          }));
-        }
-        return results;
-      };
-    })(this));
-  };
-
-  Utility.prototype.createAccumulator = function(name, func, context) {
-    var acc, accumulatedError, accumulatedSuccess, cleanup, id;
-    if (!(id = func.__uniqueID)) {
-      id = func.__uniqueID = name + String(Math.random()).replace('.', '');
-    }
-    acc = utils.accumulator;
-    cleanup = function() {
-      delete acc.collectedData[id];
-      delete acc.successHandlers[id];
-      return delete acc.errorHandlers[id];
-    };
-    accumulatedSuccess = function() {
-      var handler, handlers, i, len;
-      handlers = acc.successHandlers[id];
-      if (handlers) {
-        for (i = 0, len = handlers.length; i < len; i++) {
-          handler = handlers[i];
-          handler.apply(this, arguments);
-        }
-      }
-      return cleanup();
-    };
-    accumulatedError = function() {
-      var handler, handlers, i, len;
-      handlers = acc.errorHandlers[id];
-      if (handlers) {
-        for (i = 0, len = handlers.length; i < len; i++) {
-          handler = handlers[i];
-          handler.apply(this, arguments);
-        }
-      }
-      return cleanup();
-    };
-    return function() {
-      var data, error, handler, rest, success;
-      data = arguments[0], success = arguments[1], error = arguments[2], rest = 4 <= arguments.length ? slice.call(arguments, 3) : [];
-      if (data) {
-        acc.collectedData[id] = (acc.collectedData[id] || []).concat(data);
-      }
-      if (success) {
-        acc.successHandlers[id] = (acc.successHandlers[id] || []).concat(success);
-      }
-      if (error) {
-        acc.errorHandlers[id] = (acc.errorHandlers[id] || []).concat(error);
-      }
-      if (acc.handles[id]) {
-        return;
-      }
-      handler = function(options) {
-        var args, collectedData;
-        if (options == null) {
-          options = options;
-        }
-        if (!(collectedData = acc.collectedData[id])) {
-          return;
-        }
-        args = [collectedData, accumulatedSuccess, accumulatedError].concat(rest);
-        func.apply(context, args);
-        clearTimeout(acc.handles[id]);
-        delete acc.handles[id];
-        return delete acc.handlers[id];
-      };
-      acc.handlers[id] = handler;
-      return acc.handles[id] = setTimeout((function() {
-        return handler();
-      }), acc.interval);
-    };
-  };
-
-  Utility.prototype.afterLogin = function() {
-    var args, context, eventType, func, loginHandler;
-    context = arguments[0], func = arguments[1], eventType = arguments[2], args = 4 <= arguments.length ? slice.call(arguments, 3) : [];
-    if (eventType == null) {
-      eventType = 'login';
-    }
-    if (mediator.user) {
-      return func.apply(context, args);
-    } else {
-      loginHandler = function() {
-        mediator.unsubscribe(eventType, loginHandler);
-        return func.apply(context, args);
-      };
-      return mediator.subscribe(eventType, loginHandler);
-    }
-  };
-
-  Utility.prototype.deferMethodsUntilLogin = function(obj, methods, eventType) {
-    var func, i, len, name, results;
-    if (eventType == null) {
-      eventType = 'login';
-    }
-    if (typeof methods === 'string') {
-      methods = [methods];
-    }
-    results = [];
-    for (i = 0, len = methods.length; i < len; i++) {
-      name = methods[i];
-      func = obj[name];
-      if (typeof func !== 'function') {
-        throw new TypeError("utils.deferMethodsUntilLogin: method " + name + " not found");
-      }
-      results.push(obj[name] = _(utils.afterLogin).bind(null, obj, func, eventType));
-    }
-    return results;
-  };
-
-  Utility.prototype.ensureLogin = function() {
-    var args, context, e, eventType, func, loginContext;
-    context = arguments[0], func = arguments[1], loginContext = arguments[2], eventType = arguments[3], args = 5 <= arguments.length ? slice.call(arguments, 4) : [];
-    if (eventType == null) {
-      eventType = 'login';
-    }
-    utils.afterLogin.apply(utils, [context, func, eventType].concat(slice.call(args)));
-    if (!mediator.user) {
-      if ((e = args[0]) && typeof e.preventDefault === 'function') {
-        e.preventDefault();
-      }
-      return mediator.publish('!showLogin', loginContext);
-    }
-  };
-
-  Utility.prototype.ensureLoginForMethods = function(obj, methods, loginContext, eventType) {
-    var func, i, len, name, results;
-    if (eventType == null) {
-      eventType = 'login';
-    }
-    if (typeof methods === 'string') {
-      methods = [methods];
-    }
-    results = [];
-    for (i = 0, len = methods.length; i < len; i++) {
-      name = methods[i];
-      func = obj[name];
-      if (typeof func !== 'function') {
-        throw new TypeError("utils.ensureLoginForMethods: method " + name + " not found");
-      }
-      results.push(obj[name] = _(utils.ensureLogin).bind(null, obj, func, loginContext, eventType));
-    }
-    return results;
-  };
-
-  Utility.prototype.facebookImageURL = function(fbId, type) {
-    var accessToken, params;
-    if (type == null) {
-      type = 'square';
-    }
-    params = {
-      type: type
-    };
-    if (mediator.user) {
-      accessToken = mediator.user.get('accessToken');
-      if (accessToken) {
-        params.access_token = accessToken;
-      }
-    }
-    return "https://graph.facebook.com/" + fbId + "/picture?" + ($.param(params));
-  };
-
   return Utility;
 
-})());
+}).call(this));
 
 });
 
 require.register("models/base/collection.coffee", function(exports, require, module) {
-var Backbone, Collection,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var Backbone, Collection;
 
 Backbone = require('backbone');
 
-module.exports = Collection = (function(superClass) {
-  extend(Collection, superClass);
+module.exports = Collection = class Collection extends Backbone.Collection.extend({
+    state: {}
+  }) {};
 
-  function Collection() {
-    return Collection.__super__.constructor.apply(this, arguments);
-  }
-
-  return Collection;
-
-})(Backbone.Collection.extend({
-  state: {}
-}));
+// Place your application-specific collection features here
 
 });
 
-require.register("models/base/model.coffee", function(exports, require, module) {
-var Backbone, Model,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+;require.register("models/base/model.coffee", function(exports, require, module) {
+
+var Backbone, Model;
 
 Backbone = require('backbone');
 
-module.exports = Model = (function(superClass) {
-  extend(Model, superClass);
+module.exports = Model = class Model extends Backbone.Model.extend({
+    state: {}
+  }) {};
 
-  function Model() {
-    return Model.__super__.constructor.apply(this, arguments);
-  }
-
-  return Model;
-
-})(Backbone.Model.extend({
-  state: {}
-}));
+// Place your application-specific model features here
 
 });
 
-require.register("models/navigation.coffee", function(exports, require, module) {
-var Model, Navigation,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+;require.register("models/navigation.coffee", function(exports, require, module) {
+var Model, Navigation;
 
 Model = require('models/base/model');
 
 'use strict';
 
-module.exports = Navigation = (function(superClass) {
-  extend(Navigation, superClass);
-
-  function Navigation() {
-    return Navigation.__super__.constructor.apply(this, arguments);
-  }
+module.exports = Navigation = (function() {
+  class Navigation extends Model {};
 
   Navigation.prototype.defaults = {
     items: [
       {
         href: '/',
         title: 'Likes Browser'
-      }, {
+      },
+      {
         href: '/posts',
         title: 'Wall Posts'
       }
@@ -1665,43 +1663,48 @@ module.exports = Navigation = (function(superClass) {
 
   return Navigation;
 
-})(Model);
+}).call(this);
 
 });
 
 require.register("models/stories.coffee", function(exports, require, module) {
 var Collection, Stories, Story,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  boundMethodCheck = function(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new Error('Bound instance method accessed before binding'); } };
 
 Collection = require('models/base/collection', Story = require('models/story'));
 
+//allStories is global, as is myStories
 'use strict';
 
-Stories = (function(superClass) {
-  extend(Stories, superClass);
+Stories = (function() {
+  class Stories extends Collection {
+    constructor() {
+      super(...arguments);
+      this.fetch = this.fetch.bind(this);
+    }
 
-  function Stories() {
-    this.fetch = bind(this.fetch, this);
-    return Stories.__super__.constructor.apply(this, arguments);
-  }
+    initialize(someStories) {
+      this.someStories = someStories;
+      super.initialize();
+      //@subscribeEvent 'login', @fetch
+      //@subscribeEvent 'logout', @logout
+      return this.fetch();
+    }
 
+    fetch() {
+      boundMethodCheck(this, Stories);
+      return this.push(this.someStories);
+    }
+
+  };
+
+  // Stories are local,, so no need to Mix in a SyncMachine
+  //_.extend @prototype, Chaplin.SyncMachine
   Stories.prototype.model = Story;
-
-  Stories.prototype.initialize = function(someStories) {
-    this.someStories = someStories;
-    Stories.__super__.initialize.call(this);
-    return this.fetch();
-  };
-
-  Stories.prototype.fetch = function() {
-    return this.push(this.someStories);
-  };
 
   return Stories;
 
-})(Collection);
+}).call(this);
 
 module.exports = {
   allStories: new Stories(allStories),
@@ -1713,70 +1716,53 @@ module.exports = {
 
 require.register("models/story.coffee", function(exports, require, module) {
 var Model, Story,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  boundMethodCheck = function(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new Error('Bound instance method accessed before binding'); } };
 
 Model = require('models/base/model');
 
 'use strict';
 
-module.exports = Story = (function(superClass) {
-  extend(Story, superClass);
-
-  function Story() {
-    this.href = bind(this.href, this);
-    return Story.__super__.constructor.apply(this, arguments);
+module.exports = Story = class Story extends Model {
+  constructor() {
+    super(...arguments);
+    this.href = this.href.bind(this);
   }
 
-  Story.prototype.href = function(against) {
+  href(against = false) {
     var ref;
-    if (against == null) {
-      against = false;
-    }
-    ref = (this.get('category')) + "/" + (this.get('slug')) + ".html";
+    boundMethodCheck(this, Story);
+    ref = `${this.get('category')}/${this.get('slug')}.html`;
     ref = ref.replace(/\ /g, '_');
     if (!against || against === window.siteHandle) {
       return ref;
     }
     if (against.match('/')) {
-      return against + "/" + ref;
+      return `${against}/${ref}`;
     }
-  };
+  }
 
-  Story.prototype.initialize = function() {
-    return Story.__super__.initialize.call(this);
-  };
+  initialize() {
+    return super.initialize();
+  }
 
-  return Story;
-
-})(Model);
+};
 
 });
 
 require.register("models/user.coffee", function(exports, require, module) {
-var Model, User,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var Model, User;
 
 Model = require('models/base/model');
 
 'use strict';
 
-module.exports = User = (function(superClass) {
-  extend(User, superClass);
+module.exports = User = class User extends Model {};
 
-  function User() {
-    return User.__super__.constructor.apply(this, arguments);
-  }
-
-  return User;
-
-})(Model);
+// This model is intentionally left blank
 
 });
 
-require.register("routes.coffee", function(exports, require, module) {
+;require.register("routes.coffee", function(exports, require, module) {
 'use strict';
 var routes;
 
@@ -1790,7 +1776,6 @@ module.exports = routes;
 });
 
 require.register("payload-/lowroller.coffee", function(exports, require, module) {
-
 /*
 #global Pylon
  */
@@ -1800,19 +1785,18 @@ T = Pylon.Halvalla;
 
 _ = Pylon.underscore;
 
-
 /*
 browser specific initialization code
- */
-
+*/
 $(function() {});
 
-module.exports = SiteLook = (function() {
-  function SiteLook() {}
 
-  SiteLook.prototype.widgetWrap = function() {
-    var attrs, contents, id, ref, title;
-    ref = T.normalizeArgs(arguments), attrs = ref.attrs, contents = ref.contents;
+// this widget fills in the page
+//run me when the window and document are ready, mr. jQuery
+module.exports = SiteLook = class SiteLook {
+  widgetWrap() {
+    var attrs, contents, id, title;
+    ({attrs, contents} = T.normalizeArgs(arguments));
     id = attrs.id;
     delete attrs.id;
     title = attrs.title;
@@ -1825,11 +1809,9 @@ module.exports = SiteLook = (function() {
         return contents;
       });
     });
-  };
+  }
 
-  return SiteLook;
-
-})();
+};
 
 });
 
