@@ -150,11 +150,7 @@ a-scene { height: 300px; width: 600px; }
         # objects in scene
         ###
         
-<<<<<<< HEAD
         T.tag "a-cylinder", 'static-body': '', position:"0 0 0", radius:"1.5", height:"3", color:"#FFC65D"
-=======
-        T.tag "a-cylinder", 'static-body': '', position:"0 0 0", radius:"1", height:"3", color:"#FFC65D"
->>>>>>> hop
         
         T.tag "a-sky", color:"#cceecc"
         T.tag "a-plane", 'static-body':'', position:"0  -0.01 -4", rotation:"-90 0 0", width:"40", height:"50", color:"#7BC8A4"
@@ -201,35 +197,7 @@ a-scene { height: 300px; width: 600px; }
 db = {} unless db
 
 #
-db[id="lowroller/examples/forces"] =
-  title: "Tetrahedral Forces Supporting Center Mass"
-  slug: "forces"
-  category: "examples"
-  site: "lowroller"
-  accepted: false
-  index: false
-  sourcePath: ""
-  headlines: []
-  tags: []
-  snippets: "{\"first name\":\"first name\"}"
-  memberOf: []
-  created: "2018-10-13T01:00:49.348Z"
-  lastEdited: "2018-10-13T01:00:49.349Z"
-  published: "2018-10-13T01:00:49.349Z"
-  embargo: "2018-10-13T01:00:49.349Z"
-  captureDate: "2018-10-13T01:00:49.349Z"
-  TimeStamp: 1539392449349
-  debug: ""
-  author: "James A. Hinds: St. John's Jim -- King of Cascadia"
-  id: "lowroller/examples/forces"
-  name: "forces"
 #
-#end of story
-#
-<<<<<<< HEAD
-
-=======
->>>>>>> hop
 db[id="lowroller/examples/immobile"] =
   title: "A Single Stationary Lowroller on a Pedestal"
   slug: "immobile"
@@ -253,7 +221,4 @@ db[id="lowroller/examples/immobile"] =
   id: "lowroller/examples/immobile"
   name: "immobile"
 #
-<<<<<<< HEAD
-=======
 #end of story
->>>>>>> hop

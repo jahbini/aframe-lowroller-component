@@ -201,10 +201,6 @@ a-scene { height: 300px; width: 600px; }
 db = {} unless db
 
 #
-<<<<<<< HEAD
-
-=======
->>>>>>> hop
 db[id="lowroller/examples/forces"] =
   title: "Tetrahedral Forces Supporting Center Mass"
   slug: "forces"
@@ -227,10 +223,6 @@ db[id="lowroller/examples/forces"] =
   author: "James A. Hinds: St. John's Jim -- King of Cascadia"
   id: "lowroller/examples/forces"
   name: "forces"
-<<<<<<< HEAD
-#
-=======
 #
 #end of story
 
->>>>>>> hop

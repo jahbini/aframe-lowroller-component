@@ -405,9 +405,6 @@
         var adjust, direction, dt, force, inf, innieID, j, len, otf, outieLimitW, pursue, ref, tetToInnieDistance, tetToSeekDistance, tetraStruct;
         dt = 0.0166;
         pursue = this.outie.el.pursuit();
-        if (this.outie.el.hop) {
-          pursue.y = 2 * this.outie.radius;
-        }
         outieLimitW = this.outie.radius * 0.9;
         pursue.vsub(this.outie.position, this.temps.pursueVector);
         this.temps.pursueVector.normalize();
@@ -420,7 +417,6 @@
           this.outie.applyForce(new Vec3(0, -9.6 * this.innie.mass, 0.1), this.innie.position.vsub(this.outie.position));
           return;
         }
-        debugger;
         ref = this.outie.tetraPoints;
         for (j = 0, len = ref.length; j < len; j++) {
           tetraStruct = ref[j];
@@ -745,18 +741,6 @@
           results.push(f(element));
         }
         return results;
-      },
-
-      /*
-      setHop changes the y (up/down) coordinate of the pursuit location
-       */
-      setHop: function(msec) {
-        this.el.hop = 1;
-        return setTimeout(((function(_this) {
-          return function() {
-            return _this.el.hop = 0;
-          };
-        })(this)), msec);
       },
 
       /*

@@ -226,9 +226,5 @@ db[id="lowroller/examples/hop"] =
   id: "lowroller/examples/hop"
   name: "hop"
 #
-<<<<<<< HEAD
-#end of story
-=======
 #end of story
 
->>>>>>> hop
