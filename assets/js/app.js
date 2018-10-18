@@ -531,13 +531,15 @@ module.exports = T.bless(Sidebar = (function() {
           catPrefix = catPrefix.replace(/\//g, ' -');
           catPostfix = catPostfix.toString().replace(/\//g, '- ');
           return headliner = _(stories).find((story) => { //find index for this category
-            var attrX;
+            var attrX, autoExpand;
+            autoExpand = Object.keys(stuff).length < 4; //start with open if number of elements in this category is small
             attrX = {
-              'aria-expanded': 'false',
+              'aria-expanded': autoExpand,
               onclick: this.clickHandler,
               role: 'heading'
             };
             return T.div('.btn-group.btn-group-vertical', () => {
+              var attrY;
               if (headliner) {
                 T.button(".btn.btn-group.btn-outline-light.btn-block", attrX, () => {
                   return T.h5('', () => {
@@ -550,10 +552,13 @@ module.exports = T.bless(Sidebar = (function() {
                   return T.h6('', `${catPrefix} ${catPostfix}`);
                 });
               }
-              return T.section(".pr1.btn-group.btn-outline-light", {
-                hidden: "hidden",
-                "aria-expanded": 'false'
-              }, () => {
+              attrY = {
+                'aria-expanded': autoExpand
+              };
+              if (!autoExpand) {
+                attrY.hidden = 'hidden';
+              }
+              return T.section(".pr1.btn-group.btn-outline-light", attrY, () => {
                 return T.ul(".my-2", () => {
                   return _(stuff[category]).each((story) => {
                     if ('category' === story.get('className')) {
