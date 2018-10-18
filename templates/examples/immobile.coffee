@@ -150,7 +150,11 @@ a-scene { height: 300px; width: 600px; }
         # objects in scene
         ###
         
+<<<<<<< HEAD
         T.tag "a-cylinder", 'static-body': '', position:"0 0 0", radius:"1.5", height:"3", color:"#FFC65D"
+=======
+        T.tag "a-cylinder", 'static-body': '', position:"0 0 0", radius:"1", height:"3", color:"#FFC65D"
+>>>>>>> hop
         
         T.tag "a-sky", color:"#cceecc"
         T.tag "a-plane", 'static-body':'', position:"0  -0.01 -4", rotation:"-90 0 0", width:"40", height:"50", color:"#7BC8A4"
@@ -222,7 +226,10 @@ db[id="lowroller/examples/forces"] =
 #
 #end of story
 #
+<<<<<<< HEAD
 
+=======
+>>>>>>> hop
 db[id="lowroller/examples/immobile"] =
   title: "A Single Stationary Lowroller on a Pedestal"
   slug: "immobile"
@@ -246,3 +253,7 @@ db[id="lowroller/examples/immobile"] =
   id: "lowroller/examples/immobile"
   name: "immobile"
 #
+<<<<<<< HEAD
+=======
+#end of story
+>>>>>>> hop

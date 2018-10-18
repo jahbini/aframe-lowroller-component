@@ -411,9 +411,6 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
         var adjust, direction, dt, force, inf, innieID, j, len, otf, outieLimitW, pursue, ref, tetToInnieDistance, tetToSeekDistance, tetraStruct;
         dt = 0.0166;
         pursue = this.outie.el.pursuit();
-        if (this.outie.el.hop) {
-          pursue.y = 2 * this.outie.radius;
-        }
         outieLimitW = this.outie.radius * 0.9;
         pursue.vsub(this.outie.position, this.temps.pursueVector);
         this.temps.pursueVector.normalize();
@@ -750,18 +747,6 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
           results.push(f(element));
         }
         return results;
-      },
-
-      /*
-      setHop changes the y (up/down) coordinate of the pursuit location
-       */
-      setHop: function(msec) {
-        this.el.hop = 1;
-        return setTimeout(((function(_this) {
-          return function() {
-            return _this.el.hop = 0;
-          };
-        })(this)), msec);
       },
 
       /*
