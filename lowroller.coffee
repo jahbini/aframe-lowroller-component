@@ -113,6 +113,7 @@ class TetraForcer
     # @type {number}
     ###
     @minForce = options.minForce || 10
+    @debug = options.debug || false
     # springs and TetraForcers do not have equations, they add forces directly 
     @equations = []
     Vec3 = CANNON.Vec3
@@ -130,7 +131,9 @@ class TetraForcer
     ###*
     # debug by showning marker and computed forces
     ###
+    
     @debug = options.debug if options.debug
+    
     ###*
     # Proportional, Integral, Differential parameters
     # @property pid
@@ -205,7 +208,6 @@ class TetraForcer
       @outie.applyForce new Vec3(0,-9.6*@innie.mass,0.1),@innie.position.vsub @outie.position
       return
     
-    #debugger
     for tetraStruct in @outie.tetraPoints
       tetraStruct.cannonLocal.scale @outie.radius, @temps.tetW
       pointToWorldFrame @outie, @temps.tetW,@temps.tetW
@@ -224,18 +226,17 @@ class TetraForcer
       @temps.tetraVector.scale -1,@temps.tetraVector
       @temps.tetW.vsub @outie.position,@temps.forcePositionW
       @outie.applyForce @temps.tetraVector, @temps.forcePositionW
-      continue unless @debug
-      innieID=@innie.el.id
-      inf=document.querySelector "##{innieID}__marker"
-      inf.setAttribute "position",@temps.seekPositionW
-      inf=document.querySelector "##{innieID}__innieForce__#{tetraStruct.index}"
-      inf.setAttribute "position",@innie.position 
-      @temps.tetraVector.normalize()
-      direction=@temps.tetraVector
-      inf.setAttribute "arrow", "direction: #{direction.x} #{direction.y} #{direction.z}; length: #{force/10}"
-      otf=document.querySelector "##{innieID}__outieForce__#{tetraStruct.index}"
-      otf.setAttribute "position",@temps.tetW
-      otf.setAttribute "arrow", "direction: #{-1 * direction.x} #{-1*direction.y} #{-1 * direction.z}; length: #{force/10}"
+      if @debug
+        innieID=@innie.el.id
+        inf=document.querySelector "##{innieID}__marker"
+        inf.setAttribute "position",@temps.seekPositionW
+        @temps.tetraVector.normalize()
+        direction=@temps.tetraVector
+        otf=document.querySelector "##{innieID}__outieForce__#{tetraStruct.index}"
+        #otf.setAttribute "position",@temps.tetW
+        otf.setAttribute "position",@innie.position
+        otf.setAttribute "arrow", "direction: #{-1 * direction.x} #{-1*direction.y} #{-1 * direction.z}; length: #{force/50}"
+      continue
       
     return
     
@@ -329,7 +330,7 @@ AFRAME.registerComponent('tetra-motor',
     @system.addConstraint @constraint
     radius = el.components.geometry.data.radius
     if @constraint.type == 'tetraForcer'
-      @system.addConstraint new CANNON.DistanceConstraint el.body, data.target.body, radius * 0.9, data.maxForce
+      @system.addConstraint new CANNON.DistanceConstraint el.body, data.target.body, radius * 0.8, data.maxForce
     return
   createConstraint: ->
     constraint = undefined
@@ -551,12 +552,9 @@ AFRAME.registerComponent 'lowroller',
         @accessControlPoints (e)=>
           iVector = document.createElement 'a-entity'
           iVector.setAttribute 'arrow',"direction: 1 1 1; length:1; color: #{colors[e.index]}"
-          iVector.id = "#{@innie.id}__innieForce__#{e.index}"
-          @.el.parentElement.insertBefore iVector,@.el
-          iVector = document.createElement 'a-entity'
-          iVector.setAttribute 'arrow',"direction: 1 1 1; length:1; color: #{colors[e.index]}"
           iVector.id = "#{@innie.id}__outieForce__#{e.index}"
           @.el.parentElement.insertBefore iVector,@.el
+          return
 
     @el.setAttribute "tetra-motor",
       target: "##{@innie.id}"
@@ -575,6 +573,8 @@ AFRAME.registerComponent 'lowroller',
         @setPursuit event.detail.chase
       if event.detail.idle
         @setPursuit 'idle'
+      if event.detail.hop
+        @setHop event.detail.hop
       return
     console.log "INIT",@totalMass,radius
     return 

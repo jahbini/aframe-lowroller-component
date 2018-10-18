@@ -1,6 +1,7 @@
 # 
 T = require 'halvalla'
 #include card.coffee
+console.log "SITE TEMPLATE"
 module.exports = class lowrollerTemplate
   #pass the db entry into the class so that the classes have access to it
   constructor: (@db,@allDB)->
@@ -20,7 +21,7 @@ module.exports = class lowrollerTemplate
         T.meta name: "author", content: "James A. Hinds: The Celarien's best friend.  I'm not him, I wear glasses"
         T.meta "http-equiv": "Content-Type", content: "text/html", charset: "UTF-8"
         T.meta name: "viewport", content: "width=device-width, initial-scale=1"
-        T.title => T.raw "The LowRoller -- an example of an active defense against tragic shootings."
+        T.title => T.raw (@db.title || "The LowRoller -- an example of an active defense against tragic shootings.")
         T.meta name: "description", content: "some good thoughts. Maybe."
         T.meta name: "keywords", content: "peace, how to wage peace, wisdom, tarot"
         T.meta property: "fb:admins", content: "1981510532097452"

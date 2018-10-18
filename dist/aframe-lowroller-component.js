@@ -216,6 +216,7 @@
          * @type {number}
          */
         this.minForce = options.minForce || 10;
+        this.debug = options.debug || false;
         // springs and TetraForcers do not have equations, they add forces directly 
         this.equations = [];
         Vec3 = CANNON.Vec3;
@@ -322,8 +323,6 @@
           return;
         }
         ref = this.outie.tetraPoints;
-        
-        //debugger
         for (j = 0, len = ref.length; j < len; j++) {
           tetraStruct = ref[j];
           tetraStruct.cannonLocal.scale(this.outie.radius, this.temps.tetW);
@@ -342,20 +341,18 @@
           this.temps.tetraVector.scale(-1, this.temps.tetraVector);
           this.temps.tetW.vsub(this.outie.position, this.temps.forcePositionW);
           this.outie.applyForce(this.temps.tetraVector, this.temps.forcePositionW);
-          if (!this.debug) {
-            continue;
+          if (this.debug) {
+            innieID = this.innie.el.id;
+            inf = document.querySelector(`#${innieID}__marker`);
+            inf.setAttribute("position", this.temps.seekPositionW);
+            this.temps.tetraVector.normalize();
+            direction = this.temps.tetraVector;
+            otf = document.querySelector(`#${innieID}__outieForce__${tetraStruct.index}`);
+            //otf.setAttribute "position",@temps.tetW
+            otf.setAttribute("position", this.innie.position);
+            otf.setAttribute("arrow", `direction: ${-1 * direction.x} ${-1 * direction.y} ${-1 * direction.z}; length: ${force / 50}`);
           }
-          innieID = this.innie.el.id;
-          inf = document.querySelector(`#${innieID}__marker`);
-          inf.setAttribute("position", this.temps.seekPositionW);
-          inf = document.querySelector(`#${innieID}__innieForce__${tetraStruct.index}`);
-          inf.setAttribute("position", this.innie.position);
-          this.temps.tetraVector.normalize();
-          direction = this.temps.tetraVector;
-          inf.setAttribute("arrow", `direction: ${direction.x} ${direction.y} ${direction.z}; length: ${force / 10}`);
-          otf = document.querySelector(`#${innieID}__outieForce__${tetraStruct.index}`);
-          otf.setAttribute("position", this.temps.tetW);
-          otf.setAttribute("arrow", `direction: ${-1 * direction.x} ${-1 * direction.y} ${-1 * direction.z}; length: ${force / 10}`);
+          continue;
         }
       }
 
@@ -495,7 +492,7 @@
       this.system.addConstraint(this.constraint);
       radius = el.components.geometry.data.radius;
       if (this.constraint.type === 'tetraForcer') {
-        this.system.addConstraint(new CANNON.DistanceConstraint(el.body, data.target.body, radius * 0.9, data.maxForce));
+        this.system.addConstraint(new CANNON.DistanceConstraint(el.body, data.target.body, radius * 0.8, data.maxForce));
       }
     },
     createConstraint: function() {
@@ -816,12 +813,8 @@
           var iVector;
           iVector = document.createElement('a-entity');
           iVector.setAttribute('arrow', `direction: 1 1 1; length:1; color: ${colors[e.index]}`);
-          iVector.id = `${this.innie.id}__innieForce__${e.index}`;
-          this.el.parentElement.insertBefore(iVector, this.el);
-          iVector = document.createElement('a-entity');
-          iVector.setAttribute('arrow', `direction: 1 1 1; length:1; color: ${colors[e.index]}`);
           iVector.id = `${this.innie.id}__outieForce__${e.index}`;
-          return this.el.parentElement.insertBefore(iVector, this.el);
+          this.el.parentElement.insertBefore(iVector, this.el);
         });
       }
       this.el.setAttribute("tetra-motor", {
@@ -843,6 +836,9 @@
         }
         if (event.detail.idle) {
           this.setPursuit('idle');
+        }
+        if (event.detail.hop) {
+          this.setHop(event.detail.hop);
         }
       });
       console.log("INIT", this.totalMass, radius);
