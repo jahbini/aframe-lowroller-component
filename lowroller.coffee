@@ -1,3 +1,4 @@
+## vim: et:ts=2:sw=2:sts=2:nowrap
 ### 
 var CANNON = require('cannon');
 ###
@@ -183,6 +184,13 @@ class TetraForcer
   # @method applyForce
   ###
   update: ->
+   switch @state
+     when "pursuit" then  @pursuing()
+     when "drop then @drop()
+     when 'punch' then @punch()
+     else @pursuing()
+   return
+  pursuing: ->
     dt = 0.0166
     # where is the pursuit in local coordinates?
     # the low-roller centric position we want to place innie's body
@@ -191,6 +199,10 @@ class TetraForcer
     outieLimitW = @outie.radius * 0.9     #exactly where is on this hull
     # find the internal seek position in world coordinates
     pursue.vsub @outie.position,@temps.pursueVector
+    # calculate distance.  If within proximity, emit our success
+    #
+    if pursue.length() < @outie.el.pursuitProximity
+      @.emit "proximity"
     @temps.pursueVector.normalize()
     @temps.pursueVector.scale outieLimitW, @temps.pursueVector
     @outie.position.vadd  @temps.pursueVector ,@temps.seekPositionW
@@ -424,21 +436,22 @@ AFRAME.registerComponent 'lowroller',
   ###
   setPursuit aims the low-roller at this xy destination
   ###
-  setPursuit: (p)->
+  setPursuit: (p,proximity=1)->
     # the default is that we center the pursuit
     if !this.el.body
       @el.addEventListener 'body-loaded', (event) =>
-        @.setPursuit p
+        @.setPursuit p,proximity
       return
     # we record our current position for idle or self
     @pursuitVector.copy @el.body.position
+    @.el.pursuitProximity = proximity
     @.el.pursuit = ()=> @pursuitVector
     return if p == 'self' || p == 'idle'
     if typeof p == 'object'
-      @pursuitVector.copy x:p.x, y:0, z:p.y
+      @pursuitVector.copy x:p.x, y:@.el.radius, z:p.y
       return
     if m=p.trim().match /(-?[\d.]+)[,\s]+(-?[\d.]+)([,\s]+(-?[\d.]+))?/
-      @pursuitVector.copy x:m[1], y:0, z:m[2]
+      @pursuitVector.copy x:m[1], y:@.el.radius, z:m[2]
       return
     targetEl = @el.sceneEl.querySelector(p)
     if !targetEl
@@ -460,6 +473,7 @@ AFRAME.registerComponent 'lowroller',
   Initialization
   ###
   init: ->
+    @state = "pursuing"
     @initRuntime = true
     tetrahedralDescription=[]
     do -> 
@@ -572,7 +586,7 @@ AFRAME.registerComponent 'lowroller',
       return
     @el.addEventListener "setAction",(event)=>
       if event.detail.chase 
-        @setPursuit event.detail.chase
+        @setPursuit event.detail.chase,event.detail.proximity||null
       if event.detail.idle
         @setPursuit 'idle'
       return

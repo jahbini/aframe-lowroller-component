@@ -412,6 +412,9 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
         pursue = this.outie.el.pursuit();
         outieLimitW = this.outie.radius * 0.9;
         pursue.vsub(this.outie.position, this.temps.pursueVector);
+        if (pursue.length() < this.outie.el.pursuitProximity) {
+          this.emit("proximity");
+        }
         this.temps.pursueVector.normalize();
         this.temps.pursueVector.scale(outieLimitW, this.temps.pursueVector);
         this.outie.position.vadd(this.temps.pursueVector, this.temps.seekPositionW);
@@ -754,17 +757,21 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
       /*
       setPursuit aims the low-roller at this xy destination
        */
-      setPursuit: function(p) {
+      setPursuit: function(p, proximity) {
         var m, targetEl;
+        if (proximity == null) {
+          proximity = 1;
+        }
         if (!this.el.body) {
           this.el.addEventListener('body-loaded', (function(_this) {
             return function(event) {
-              return _this.setPursuit(p);
+              return _this.setPursuit(p, proximity);
             };
           })(this));
           return;
         }
         this.pursuitVector.copy(this.el.body.position);
+        this.el.pursuitProximity = proximity;
         this.el.pursuit = (function(_this) {
           return function() {
             return _this.pursuitVector;
@@ -776,7 +783,7 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
         if (typeof p === 'object') {
           this.pursuitVector.copy({
             x: p.x,
-            y: 0,
+            y: this.el.radius,
             z: p.y
           });
           return;
@@ -784,7 +791,7 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
         if (m = p.trim().match(/(-?[\d.]+)[,\s]+(-?[\d.]+)([,\s]+(-?[\d.]+))?/)) {
           this.pursuitVector.copy({
             x: m[1],
-            y: 0,
+            y: this.el.radius,
             z: m[2]
           });
           return;
@@ -959,7 +966,7 @@ They represent an upper bound on the behavior of these roller balls.</p></div><d
         this.el.addEventListener("setAction", (function(_this) {
           return function(event) {
             if (event.detail.chase) {
-              _this.setPursuit(event.detail.chase);
+              _this.setPursuit(event.detail.chase, event.detail.proximity || null);
             }
             if (event.detail.idle) {
               _this.setPursuit('idle');
