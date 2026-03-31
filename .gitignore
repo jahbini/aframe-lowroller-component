@@ -2,3 +2,5 @@
 *.log
 node_modules
 /.c9
+pnpm-lock.yaml
+package-lock.json
